@@ -69,6 +69,11 @@
       transform: translateY(-10px);
       transition: opacity 0.2s ease, transform 0.2s ease;
     }
+    
+    .sort-dropdown {
+      right: 0;
+      left: auto;
+    }
     .filter-dropdown.show, .sort-dropdown.show, .card-menu-dropdown.show, .header-menu-dropdown.show {
       display: block;
       opacity: 1;
@@ -93,7 +98,7 @@
     .card-menu-dropdown.show {
       transform: translateY(0);
     }
-    .filter-dropdown a, .sort-dropdown a, .card-menu-dropdown a, .header-menu-dropdown a {
+    .filter-dropdown a:not(.type-option), .sort-dropdown a, .card-menu-dropdown a, .header-menu-dropdown a {
       display: block;
       padding: 8px 12px;
       font-size: 14px;
@@ -101,7 +106,11 @@
       text-decoration: none;
       transition: background-color 0.2s ease;
     }
-    .filter-dropdown a:hover, .sort-dropdown a:hover, .card-menu-dropdown a:hover, .header-menu-dropdown a:hover {
+    .filter-dropdown a:not(.type-option):hover, .sort-dropdown a:hover, .card-menu-dropdown a:hover, .header-menu-dropdown a:hover {
+      background-color: #F2F2F7;
+      cursor: pointer;
+    }
+    .filter-dropdown .type-option:hover {
       background-color: #F2F2F7;
       cursor: pointer;
     }
@@ -109,21 +118,17 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 8px 12px;
     }
     .filter-dropdown .type-option .checkmark {
       width: 16px;
       height: 16px;
-      border: 1px solid #D1D1D6;
-      border-radius: 3px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
-      color: #007AFF;
-    }
-    .filter-dropdown .type-option.selected .checkmark {
-      background-color: #007AFF;
-      color: white;
+      font-size: 14px;
+      color: #000;
+      margin-left: 4px;
     }
     .filter-label {
       font-size: 10px;
@@ -156,9 +161,6 @@
       margin-bottom: 16px;
       transform: translateY(0);
       opacity: 1;
-    }
-    .ios-card.hidden {
-      display: none;
     }
     .ios-card:active {
       background-color: #F2F2F7;
@@ -439,7 +441,7 @@
     }
     .main-content {
       padding-top: 40px;
-      padding-bottom: 100px;
+      padding-bottom: 140px;
       padding-left: 16px;
       padding-right: 16px;
     }
@@ -755,9 +757,23 @@
     // Инициализация данных пользователя
     const currentUser = {
       id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || Math.floor(Math.random() * 1000000),
-      name: window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || "Пользователь",
-      avatar: window.Telegram?.WebApp?.initDataUnsafe?.user?.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent("Пользователь")}&background=007AFF&color=fff&size=64`
+      name: window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 
+            window.Telegram?.WebApp?.initDataUnsafe?.user?.username || "Пользователь",
+      avatar: window.Telegram?.WebApp?.initDataUnsafe?.user?.photo_url || 
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 
+                window.Telegram?.WebApp?.initDataUnsafe?.user?.username || "Пользователь"
+              )}&background=007AFF&color=fff&size=64`
     };
+
+    // Отладочная информация для разработки
+    if (window.Telegram?.WebApp) {
+      console.log("Telegram WebApp доступен:", window.Telegram.WebApp);
+      console.log("Пользователь:", window.Telegram.WebApp.initDataUnsafe?.user);
+      console.log("Текущий пользователь:", currentUser);
+    } else {
+      console.log("Telegram WebApp недоступен, используются демо данные");
+    }
 
     const sampleUsers = [
       { id: 2, name: "Алексей", avatar: "https://ui-avatars.com/api/?name=Алексей&background=34C759&color=fff&size=64" },
@@ -910,10 +926,8 @@
         const checkmark = option.querySelector('.checkmark');
         
         if (selectedSet.has(value)) {
-          option.classList.add('selected');
           checkmark.textContent = '✓';
         } else {
-          option.classList.remove('selected');
           checkmark.textContent = '';
         }
       });
@@ -951,11 +965,6 @@
       const isLiked = entry.likedBy.includes(currentUser.id);
       const isFavorited = favorites.has(entry.id);
       const isOwner = entry.creator.id === currentUser.id;
-      const isHidden = hiddenEntries.has(entry.id);
-
-      if (isHidden) {
-        entryElement.classList.add('hidden');
-      }
 
       // Обработка тегов типа (может быть массив)
       const typeTags = Array.isArray(entry.tags.type) ? entry.tags.type : [entry.tags.type];
@@ -1057,15 +1066,20 @@
       
       switch (currentSort) {
         case "Новые":
+          filters.hidden = false;
           return sorted.sort((a, b) => b.timestamp - a.timestamp);
         case "Старые":
+          filters.hidden = false;
           return sorted.sort((a, b) => a.timestamp - b.timestamp);
         case "По рейтингу":
+          filters.hidden = false;
           return sorted.sort((a, b) => b.likedBy.length - a.likedBy.length);
         case "Мои":
+          filters.hidden = false;
           return sorted.filter(entry => entry.creator.id === currentUser.id)
                       .sort((a, b) => b.timestamp - a.timestamp);
         case "Избранное":
+          filters.hidden = false;
           return sorted.filter(entry => favorites.has(entry.id))
                       .sort((a, b) => b.timestamp - a.timestamp);
         case "Скрытые":
@@ -1231,7 +1245,9 @@
     dateButton.addEventListener("click", function(e) {
       e.stopPropagation();
       toggleDropdown(dateMenu);
-      datePicker.focus();
+      setTimeout(() => {
+        datePicker.focus();
+      }, 100);
     });
 
     datePicker.addEventListener("change", function() {
@@ -1251,7 +1267,9 @@
     modalDateButton.addEventListener("click", function(e) {
       e.stopPropagation();
       toggleDropdown(modalDateMenu);
-      modalDatePicker.focus();
+      setTimeout(() => {
+        modalDatePicker.focus();
+      }, 100);
     });
 
     modalDatePicker.addEventListener("change", function() {
@@ -1528,9 +1546,7 @@
           entryElement.style.transform = 'translateX(-100%)';
           entryElement.style.opacity = '0';
           setTimeout(() => {
-            entryElement.classList.add('hidden');
-            entryElement.style.transform = '';
-            entryElement.style.opacity = '';
+            entryElement.remove();
           }, 300);
         } else if (option === "Изменить") {
           const entry = entries.find(entry => entry.id === entryId);
@@ -1646,12 +1662,43 @@
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
       
+      // Включаем отображение главной кнопки если нужно
+      window.Telegram.WebApp.MainButton.hide();
+      
       // Настройка цветов под тему Telegram
       if (window.Telegram.WebApp.themeParams) {
         const root = document.documentElement;
         root.style.setProperty('--tg-theme-bg-color', window.Telegram.WebApp.themeParams.bg_color || '#f8f7f6');
         root.style.setProperty('--tg-theme-text-color', window.Telegram.WebApp.themeParams.text_color || '#161618');
       }
+      
+      // Обработчик закрытия приложения
+      window.Telegram.WebApp.onEvent('viewportChanged', function() {
+        console.log('Viewport changed:', window.Telegram.WebApp.viewportHeight);
+      });
+      
+    } else {
+      console.log("Приложение запущено вне Telegram WebApp");
+      // Добавляем уведомление для пользователя
+      const notice = document.createElement('div');
+      notice.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #FF9500;
+        color: white;
+        padding: 8px;
+        text-align: center;
+        font-size: 12px;
+        z-index: 1000;
+      `;
+      notice.textContent = 'Демо режим - для полной функциональности откройте в Telegram';
+      document.body.appendChild(notice);
+      
+      // Добавляем отступ сверху для основного контента
+      document.querySelector('.ios-header').style.top = '32px';
+      document.querySelector('.main-content').style.paddingTop = '72px';
     }
   </script>
 </body>
