@@ -72,8 +72,18 @@
       transform: translateY(0);
     }
     .card-menu-dropdown {
+      bottom: 100%;
+      top: auto;
       right: 0;
       left: auto;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 5px;
+      margin-top: 0;
+      z-index: 20;
+      transform: translateY(10px);
+    }
+    .card-menu-dropdown.show {
+      transform: translateY(0);
     }
     .filter-dropdown a, .sort-dropdown a, .card-menu-dropdown a {
       display: block;
@@ -136,19 +146,30 @@
       color: #0a0a0a;
       margin: 4px 0;
       word-wrap: break-word;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .ios-title:hover {
+      color: #007AFF;
+    }
+    .ios-description-container {
+      display: none;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      overflow: hidden;
+    }
+    .ios-description-container.show {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
     }
     .ios-description {
       font-size: 16px;
       color: #3c3c43;
       line-height: 1.4;
-      margin: 0 0 16px;
+      margin: 8px 0 16px;
       word-wrap: break-word;
-    }
-    .counter {
-      font-size: 12px;
-      color: #3c3c43;
-      margin-top: 4px;
-      text-align: right;
     }
     .ios-card-footer {
       border-top: 1px solid #D1D1D6;
@@ -177,12 +198,8 @@
     .ios-card-footer .actions {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 12px;
-    }
-    .card-menu-container {
-      padding-top: 8px;
-      display: flex;
-      justify-content: flex-end;
     }
     .ios-tags {
       display: flex;
@@ -278,6 +295,10 @@
       border-radius: 50%;
       margin-right: 10px;
     }
+    .modal-content .input-container {
+      position: relative;
+      margin-bottom: 12px;
+    }
     .modal-content input, .modal-content textarea {
       width: 100%;
       border: 1px solid #D1D1D6;
@@ -285,16 +306,32 @@
       padding: 12px;
       font-size: 16px;
       font-family: 'Rubik', sans-serif;
-      margin-bottom: 6px;
       box-sizing: border-box;
       transition: border-color 0.2s ease;
     }
     .modal-content input:focus, .modal-content textarea:focus {
       outline: none;
+      border-color: #007AFF;
     }
     .modal-content textarea {
       resize: none;
       height: 120px;
+      padding-bottom: 32px;
+    }
+    .modal-content input {
+      padding-right: 60px;
+    }
+    .counter {
+      position: absolute;
+      bottom: 8px;
+      right: 12px;
+      font-size: 11px;
+      color: #3c3c43;
+      opacity: 0.7;
+      pointer-events: none;
+      background: rgba(248, 247, 246, 0.9);
+      padding: 2px 4px;
+      border-radius: 4px;
     }
     .modal-content hr {
       border: 0;
@@ -314,7 +351,7 @@
     }
     .modal-submit-btn:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+      box-shadow: 0 4px 12px rgba(217, 119, 87, 0.3);
     }
     .modal-submit-btn:disabled {
       opacity: 0.6;
@@ -356,7 +393,7 @@
       backdrop-filter: blur(10px);
       z-index: 5;
       padding: 10px 0;
-      padding-right: 8px
+      padding-right: 8px;
     }
     .hidden {
       display: none;
@@ -364,8 +401,8 @@
     .main-content {
       padding-top: 40px;
       padding-bottom: 100px;
-      padding-left: 16px; /* Отступ слева */
-      padding-right: 16px; /* Отступ справа */
+      padding-left: 16px;
+      padding-right: 16px;
     }
     .header-separator {
       font-size: 10px;
@@ -392,6 +429,19 @@
       width: 20px;
       height: 20px;
       margin-right: 4px;
+    }
+    .card-menu-btn {
+      display: flex;
+      align-items: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      color: #3C3C4399;
+      transition: all 0.2s ease;
+    }
+    .card-menu-btn:hover {
+      transform: scale(1.05);
     }
     .relative {
       position: relative;
@@ -592,11 +642,16 @@
       </div>
     </div>
     <div class="modal-content">
-      <input type="text" id="entryTitle" placeholder="Заголовок записи" maxlength="64" />
-      <div id="titleCounter" class="counter">Осталось: 64 символов</div>
+      <div class="input-container">
+        <input type="text" id="entryTitle" placeholder="Заголовок записи" maxlength="64" />
+        <div id="titleCounter" class="counter">0/64</div>
+      </div>
       <div id="titleError" class="error-message">Заголовок обязателен</div>
-      <textarea id="entryDescription" placeholder="Описание записи" maxlength="350"></textarea>
-      <div id="descriptionCounter" class="counter">Осталось: 350 символов</div>
+      
+      <div class="input-container">
+        <textarea id="entryDescription" placeholder="Описание записи" maxlength="350"></textarea>
+        <div id="descriptionCounter" class="counter">0/350</div>
+      </div>
       <div id="descriptionError" class="error-message">Описание обязательно</div>
       <div id="successMessage" class="success-message">Запись успешно создана!</div>
     </div>
@@ -768,39 +823,38 @@
 
       entryElement.innerHTML = `
         <div class="ios-tags">
-            ${entry.tags.city !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.city)}</span>` : ""}
-            ${entry.tags.type !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.type)}</span>` : ""}
-            ${entry.tags.date !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.date)}</span>` : ""}
-            ${entry.tags.gender !== "Не важно" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.gender)}</span>` : ""}
-          </div>
-          <h2 class="ios-title">${sanitizeHtml(entry.title)}</h2>
+          ${entry.tags.city !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.city)}</span>` : ""}
+          ${entry.tags.type !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.type)}</span>` : ""}
+          ${entry.tags.date !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.date)}</span>` : ""}
+          ${entry.tags.gender !== "Не важно" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.gender)}</span>` : ""}
+        </div>
+        <h2 class="ios-title">${sanitizeHtml(entry.title)}</h2>
+        <div class="ios-description-container">
           <p class="ios-description">${sanitizeHtml(entry.description)}</p>
-          <div class="ios-card-footer">
-            <div class="user-info" data-user-id="${entry.creator.id}">
-              <img src="${entry.creator.avatar}" alt="avatar" loading="lazy" />
-              <span>${sanitizeHtml(entry.creator.name)}</span>
-            </div>
-            <div class="actions">
-              <button class="like-btn ${isLiked ? 'liked' : ''}" data-entry-id="${entry.id}">
-                <svg viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                  <path d="M8.58737 8.23597L11.1849 3.00376C11.5183 2.33208 12.4817 2.33208 12.8151 3.00376L15.4126 8.23597L21.2215 9.08017C21.9668 9.18848 22.2638 10.0994 21.7243 10.6219L17.5217 14.6918L18.5135 20.4414C18.6409 21.1798 17.8614 21.7428 17.1945 21.3941L12 18.678L6.80547 21.3941C6.1386 21.7428 5.35909 21.1798 5.48645 20.4414L6.47825 14.6918L2.27575 10.6219C1.73617 10.0994 2.03322 9.18848 2.77852 9.08017L8.58737 8.23597Z" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>${entry.likedBy.length}</span>
-              </button>
-            </div>
+        </div>
+        <div class="ios-card-footer">
+          <div class="user-info" data-user-id="${entry.creator.id}">
+            <img src="${entry.creator.avatar}" alt="avatar" loading="lazy" />
+            <span>${sanitizeHtml(entry.creator.name)}</span>
           </div>
-          <div class="card-menu-container">
+          <div class="actions">
+            <button class="like-btn ${isLiked ? 'liked' : ''}" data-entry-id="${entry.id}">
+              <svg viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                <path d="M8.58737 8.23597L11.1849 3.00376C11.5183 2.33208 12.4817 2.33208 12.8151 3.00376L15.4126 8.23597L21.2215 9.08017C21.9668 9.18848 22.2638 10.0994 21.7243 10.6219L17.5217 14.6918L18.5135 20.4414C18.6409 21.1798 17.8614 21.7428 17.1945 21.3941L12 18.678L6.80547 21.3941C6.1386 21.7428 5.35909 21.1798 5.48645 20.4414L6.47825 14.6918L2.27575 10.6219C1.73617 10.0994 2.03322 9.18848 2.77852 9.08017L8.58737 8.23597Z" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>${entry.likedBy.length}</span>
+            </button>
             <div class="relative">
               <button class="card-menu-btn focus:outline-none">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M6 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM12 10c0 1.105-.895 2-2 2s-2-1.895-2-2 .895-2 2-2 2 .895 2 2zM18 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
+                  <path d="M6 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM12 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM18 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
                 </svg>
               </button>
               <div class="card-menu-dropdown">
                 ${isOwner ? '<a href="#" data-option="Изменить">Изменить</a>' : ''}
                 ${isOwner ? '<a href="#" data-option="Удалить">Удалить</a>' : ''}
-                <a href="#" data-option="Скрыть">Скрыть</a>
-                <a href="#" data-option="favorite">${isFavorited ? "Удалить из избранного" : "В избранное"}</a>
+                ${!isOwner ? '<a href="#" data-option="Скрыть">Скрыть</a>' : ''}
+                ${!isOwner ? `<a href="#" data-option="favorite">${isFavorited ? "Удалить из избранного" : "В избранное"}</a>` : ''}
               </div>
             </div>
           </div>
@@ -1057,14 +1111,15 @@
       });
     });
 
+    // Счетчики символов
     entryTitle.addEventListener("input", function() {
-      const remaining = 64 - this.value.length;
-      document.getElementById("titleCounter").textContent = `Осталось: ${remaining} символов`;
+      const current = this.value.length;
+      document.getElementById("titleCounter").textContent = `${current}/64`;
     });
 
     entryDescription.addEventListener("input", function() {
-      const remaining = 350 - this.value.length;
-      document.getElementById("descriptionCounter").textContent = `Осталось: ${remaining} символов`;
+      const current = this.value.length;
+      document.getElementById("descriptionCounter").textContent = `${current}/350`;
     });
 
     // Модальное окно
@@ -1082,6 +1137,10 @@
       document.getElementById("modalDateLabel").textContent = "все";
       document.getElementById("modalGenderLabel").textContent = "все";
       modalDatePicker.value = "";
+      
+      // Сброс счетчиков
+      document.getElementById("titleCounter").textContent = "0/64";
+      document.getElementById("descriptionCounter").textContent = "0/350";
       
       // Скрыть сообщения об ошибках
       document.querySelectorAll('.error-message, .success-message').forEach(el => {
@@ -1133,12 +1192,32 @@
           refreshEntries();
         }, 1000);
       }, 500);
-        document.getElementById("titleCounter").textContent = `Осталось: 64 символов`;
-        document.getElementById("descriptionCounter").textContent = `Осталось: 350 символов`;
     });
 
     // Обработчики действий с записями
     entriesContainer.addEventListener("click", function(e) {
+      // Разворачивание описания при клике на заголовок
+      const title = e.target.closest(".ios-title");
+      if (title) {
+        e.stopPropagation();
+        const card = title.closest(".ios-card");
+        const descContainer = card.querySelector(".ios-description-container");
+        const isVisible = descContainer.classList.contains('show');
+        
+        if (isVisible) {
+          descContainer.classList.remove('show');
+          setTimeout(() => {
+            descContainer.style.display = 'none';
+          }, 200);
+        } else {
+          descContainer.style.display = 'block';
+          setTimeout(() => {
+            descContainer.classList.add('show');
+          }, 10);
+        }
+        return;
+      }
+
       // Лайки
       const likeBtn = e.target.closest(".like-btn");
       if (likeBtn) {
@@ -1203,6 +1282,10 @@
             // Заполняем форму данными записи
             entryTitle.value = entry.title;
             entryDescription.value = entry.description;
+            
+            // Обновляем счетчики
+            document.getElementById("titleCounter").textContent = `${entry.title.length}/64`;
+            document.getElementById("descriptionCounter").textContent = `${entry.description.length}/350`;
             
             document.getElementById("modalCityLabel").textContent = entry.tags.city === "все" ? "все" : "выбрано";
             document.getElementById("modalCityLabel").dataset.value = entry.tags.city;
