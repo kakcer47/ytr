@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Telegram Mini App – Дневник iOS 18.1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, sans-serif;
+      background-color: #FAFAFA;
+      margin: 0;
+      padding: 0;
+    }
+    .ios-header {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #D1D1D6;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 10;
+    }
+    .search-bar {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 10px;
+      z-index: 15;
+    }
+    .search-bar.active {
+      display: block;
+    }
+    .search-bar input {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 8px 12px;
+      border: 1px solid #D1D1D6;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: 'Rubik', sans-serif;
+    }
+    .filter-dropdown, .sort-dropdown, .card-menu-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: #fff;
+      min-width: 120px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      margin-top: 5px;
+      z-index: 10;
+    }
+    .card-menu-dropdown {
+      right: 0;
+      left: auto;
+    }
+    .filter-dropdown a, .sort-dropdown a, .card-menu-dropdown a {
+      display: block;
+      padding: 8px 12px;
+      font-size: 14px;
+      color: #000;
+      text-decoration: none;
+    }
+    .filter-dropdown a:hover, .sort-dropdown a:hover, .card-menu-dropdown a:hover {
+      background-color: #F2F2F7;
+      cursor: pointer;
+    }
+    .filter-label {
+      font-size: 10px;
+      color: #3C3C4399;
+      margin-top: 2px;
+    }
+    .filter-btn, .sort-btn {
+      display: inline-flex;
+      align-items: center;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .filter-btn img, .sort-btn img {
+      width: 18px;
+      height: 18px;
+    }
+    .ios-card {
+      background-color: #fff;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: background-color 0.2s;
+      margin-bottom: 16px;
+    }
+    .ios-card:active {
+      background-color: #F2F2F7;
+    }
+    .ios-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #000;
+      margin: 8px 0;
+    }
+    .ios-description {
+      font-size: 17px;
+      color: #3C3C4399;
+      line-height: 1.4;
+      margin: 0 0 16px;
+    }
+    .ios-card-footer {
+      border-top: 1px solid #D1D1D6;
+      padding-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ios-card-footer .user-info {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: #3C3C4399;
+    }
+    .ios-card-footer .user-info img {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .ios-card-footer .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .ios-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .ios-tag {
+      font-size: 10px;
+      color: #3C3C4399;
+      border: 1px solid #D1D1D6;
+      border-radius: 10px;
+      padding: 2px 6px;
+    }
+    .floating-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #007AFF;
+      color: #fff;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 20;
+      border: none;
+    }
+    .floating-btn:hover {
+      background-color: #005BC4;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #fff;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      z-index: 30;
+      transform: translateY(100%);
+      transition: transform 0.3s ease-in-out;
+    }
+    .modal.active {
+      display: block;
+      transform: translateY(0);
+    }
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 25;
+    }
+    .modal-overlay.active {
+      display: block;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .modal-user-info {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .modal-user-info img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    .modal-content input, .modal-content textarea {
+      width: 100%;
+      border: 1px solid #D1D1D6;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 16px;
+      font-family: 'Rubik', sans-serif;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    .modal-content textarea {
+      resize: none;
+      height: 150px;
+    }
+    .modal-content hr {
+      border: 0;
+      border-top: 1px solid #D1D1D6;
+      margin: 10px 0;
+    }
+    .modal-submit-btn {
+      background-color: #007AFF;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .modal-submit-btn:hover {
+      background-color: #005BC4;
+    }
+    .loading-indicator {
+      display: none;
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      color: #3C3C4399;
+    }
+    .loading-indicator.active {
+      display: block;
+    }
+    .pull-to-refresh {
+      transition: transform 0.3s ease;
+    }
+    .pull-to-refresh.pulling {
+      transform: translateY(50px);
+    }
+    .sort-container {
+      position: sticky;
+      top: 60px;
+      background: #FAFAFA;
+      z-index: 5;
+      padding: 10px 0;
+    }
+    .main-content {
+      padding-top: 100px;
+      padding-bottom: 80px;
+    }
+    .like-btn {
+      display: flex;
+      align-items: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      color: #3C3C4399;
+    }
+    .like-btn.liked {
+      color: #FF3B30;
+    }
+    .like-btn svg {
+      width: 20px;
+      height: 20px;
+      margin-right: 4px;
+    }
+    .relative {
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  <header class="ios-header">
+    <div class="max-w-md mx-auto px-4 py-2">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <div class="flex flex-col items-start relative">
+            <button id="cityDropdownButton" class="filter-btn focus:outline-none">
+              <img src="https://www.svgrepo.com/show/325027/city.svg" alt="город" />
+              <span class="ml-1">город</span>
+            </button>
+            <div id="cityLabel" class="filter-label">все</div>
+            <div id="cityDropdownMenu" class="filter-dropdown">
+              <a href="#" data-option="все">все</a>
+              <a href="#" data-option="Москва">Москва</a>
+              <a href="#" data-option="Ростов">Ростов</a>
+            </div>
+          </div>
+          <span class="text-gray-400 text-xs mx-1">|</span>
+          <div class="flex flex-col items-start relative">
+            <button id="typeDropdownButton" class="filter-btn focus:outline-none">
+              <img src="https://www.svgrepo.com/show/324884/add-keyframes.svg" alt="тип"/>
+              <span class="ml-1">тип</span>
+            </button>
+            <div id="typeLabel" class="filter-label">все</div>
+            <div id="typeDropdownMenu" class="filter-dropdown">
+              <a href="#" data-option="все">все</a>
+              <a href="#" data-option="Спорт">Спорт</a>
+              <a href="#" data-option="Духовность">Духовность</a>
+            </div>
+          </div>
+          <span class="text-gray-400 text-xs mx-1">|</span>
+          <div class="flex flex-col items-start relative">
+            <button id="dateDropdownButton" class="filter-btn focus:outline-none">
+              <img src="https://www.svgrepo.com/show/324999/calendar.svg" alt="дата"/>
+              <span class="ml-1">дата</span>
+            </button>
+            <div id="dateLabel" class="filter-label">все</div>
+            <div id="dateDropdownMenu" class="filter-dropdown">
+              <input type="date" id="datePicker" class="text-xs border rounded px-1 py-0.5" />
+            </div>
+          </div>
+          <span class="text-gray-400 text-xs mx-1">|</span>
+          <div class="flex flex-col items-start relative">
+            <button id="genderDropdownButton" class="filter-btn focus:outline-none">
+              <img src="https://www.svgrepo.com/show/325045/color-filter.svg" alt="пол"/>
+              <span class="ml-1">пол</span>
+            </button>
+            <div id="genderLabel" class="filter-label">все</div>
+            <div id="genderDropdownMenu" class="filter-dropdown">
+              <a href="#" data-option="Не важно">все</a>
+              <a href="#" data-option="Мужчина">Мужчина</a>
+              <a href="#" data-option="Женщина">Женщина</a>
+            </div>
+          </div>
+        </div>
+        <div class="flex space-x-3">
+          <button id="searchButton" class="focus:outline-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m1.2-6.3a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z"/>
+            </svg>
+          </button>
+          <button class="focus:outline-none">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M6 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM12 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM18 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <div class="search-bar" id="searchBar">
+    <div class="max-w-md mx-auto">
+      <input type="text" id="searchInput" placeholder="Поиск по записям" />
+    </div>
+  </div>
+  
+  <div class="loading-indicator max-w-md mx-auto pt-20" id="loadingIndicator">
+    Загрузка...
+  </div>
+  
+  <div class="sort-container max-w-md mx-auto px-4">
+    <div class="flex justify-end">
+      <div class="relative">
+        <button id="sortDropdownButton" class="sort-btn focus:outline-none">
+          <img src="https://www.svgrepo.com/show/324932/arrow-separate-vertical.svg" alt="сортировка" />
+          <span class="ml-1">сортировка</span>
+        </button>
+        <div id="sortDropdownMenu" class="sort-dropdown">
+          <a href="#" data-option="Мои">Мои</a>
+          <a href="#" data-option="Избранное">Избранное</a>
+          <a href="#" data-option="По рейтингу">По рейтингу</a>
+          <a href="#" data-option="Новые">Новые</a>
+          <a href="#" data-option="Старые">Старые</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <main class="main-content max-w-md mx-auto pb-4 space-y-4 pull-to-refresh" id="entriesContainer">
+  </main>
+  
+  <button class="floating-btn" id="addEntryButton">+</button>
+  
+  <div class="modal-overlay" id="modalOverlay"></div>
+  
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-user-info" id="modalUserInfo"></div>
+      <button class="modal-submit-btn" id="modalSubmitButton">Отправить</button>
+    </div>
+    <div class="flex items-center space-x-2 mb-4">
+      <div class="flex flex-col items-start relative">
+        <button id="modalCityDropdownButton" class="filter-btn focus:outline-none">
+          <img src="https://www.svgrepo.com/show/325027/city.svg" alt="город" />
+          <span class="ml-1">город</span>
+        </button>
+        <div id="modalCityLabel" class="filter-label">все</div>
+        <div id="modalCityDropdownMenu" class="filter-dropdown">
+          <a href="#" data-option="все">все</a>
+          <a href="#" data-option="Москва">Москва</a>
+          <a href="#" data-option="Ростов">Ростов</a>
+        </div>
+      </div>
+      <span class="text-gray-400 text-xs mx-1">|</span>
+      <div class="flex flex-col items-start relative">
+        <button id="modalTypeDropdownButton" class="filter-btn focus:outline-none">
+          <img src="https://www.svgrepo.com/show/324884/add-keyframes.svg" alt="тип"/>
+          <span class="ml-1">тип</span>
+        </button>
+        <div id="modalTypeLabel" class="filter-label">все</div>
+        <div id="modalTypeDropdownMenu" class="filter-dropdown">
+          <a href="#" data-option="все">все</a>
+          <a href="#" data-option="Спорт">Спорт</a>
+          <a href="#" data-option="Духовность">Духовность</a>
+        </div>
+      </div>
+      <span class="text-gray-400 text-xs mx-1">|</span>
+      <div class="flex flex-col items-start relative">
+        <button id="modalDateDropdownButton" class="filter-btn focus:outline-none">
+          <img src="https://www.svgrepo.com/show/324999/calendar.svg" alt="дата"/>
+          <span class="ml-1">дата</span>
+        </button>
+        <div id="modalDateLabel" class="filter-label">все</div>
+        <div id="modalDateDropdownMenu" class="filter-dropdown">
+          <input type="date" id="modalDatePicker" class="text-xs border rounded px-1 py-0.5" />
+        </div>
+      </div>
+      <span class="text-gray-400 text-xs mx-1">|</span>
+      <div class="flex flex-col items-start relative">
+        <button id="modalGenderDropdownButton" class="filter-btn focus:outline-none">
+          <img src="https://www.svgrepo.com/show/325045/color-filter.svg" alt="пол"/>
+          <span class="ml-1">пол</span>
+        </button>
+        <div id="modalGenderLabel" class="filter-label">все</div>
+        <div id="modalGenderDropdownMenu" class="filter-dropdown">
+          <a href="#" data-option="Не важно">все</a>
+          <a href="#" data-option="Мужчина">Мужчина</a>
+          <a href="#" data-option="Женщина">Женщина</a>
+        </div>
+      </div>
+    </div>
+    <div class="modal-content">
+      <input type="text" id="entryTitle" placeholder="Заголовок записи" />
+      <hr />
+      <textarea id="entryDescription" placeholder="Описание записи"></textarea>
+    </div>
+  </div>
+
+  <script>
+    // Инициализация данных пользователя
+    const currentUser = {
+      id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || Math.floor(Math.random() * 1000000),
+      name: window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || "Пользователь",
+      avatar: window.Telegram?.WebApp?.initDataUnsafe?.user?.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent("Пользователь")}&background=007AFF&color=fff&size=64`
+    };
+
+    const sampleUsers = [
+      { id: 2, name: "Алексей", avatar: "https://ui-avatars.com/api/?name=Алексей&background=34C759&color=fff&size=64" },
+      { id: 3, name: "Мария", avatar: "https://ui-avatars.com/api/?name=Мария&background=FF9500&color=fff&size=64" },
+      { id: 4, name: "Дмитрий", avatar: "https://ui-avatars.com/api/?name=Дмитрий&background=FF3B30&color=fff&size=64" }
+    ];
+
+    let favorites = new Set();
+    let entries = [
+      {
+        id: 1,
+        title: "Запись от 06 июня 2025",
+        description: "Сегодня я посвятил время саморазвитию и размышлениям. Читал книгу о медитации и практиковал осознанность.",
+        tags: { city: "Москва", type: "Духовность", date: "2025-06-06", gender: "Не важно" },
+        creator: sampleUsers[0],
+        likedBy: [currentUser.id],
+        timestamp: new Date('2025-06-06T12:00:00')
+      },
+      {
+        id: 2,
+        title: "Спортивная тренировка",
+        description: "Отличная тренировка в спортзале. Сегодня фокусировался на силовых упражнениях и кардио.",
+        tags: { city: "Ростов", type: "Спорт", date: "2025-06-05", gender: "Мужчина" },
+        creator: sampleUsers[1],
+        likedBy: [],
+        timestamp: new Date('2025-06-05T18:30:00')
+      },
+      {
+        id: 3,
+        title: "Вечерние размышления",
+        description: "Прекрасный закат сегодня. Время подумать о целях на будущее и планах на завтра.",
+        tags: { city: "Москва", type: "Духовность", date: "2025-06-04", gender: "Женщина" },
+        creator: sampleUsers[2],
+        likedBy: [sampleUsers[0].id],
+        timestamp: new Date('2025-06-04T20:15:00')
+      }
+    ];
+
+    // Глобальные перемены состояния
+    let currentPage = 1;
+    const entriesPerPage = 25;
+    let filters = { 
+      city: "все", 
+      type: "все", 
+      date: "все", 
+      gender: "Не важно", 
+      search: "",
+      creator: null,
+      favorite: false
+    };
+    let currentSort = "Новые";
+
+    // DOM элементы
+    const entriesContainer = document.getElementById("entriesContainer");
+    const loadingIndicator = document.getElementById("loadingIndicator");
+    const searchButton = document.getElementById("searchButton");
+    const searchBar = document.getElementById("searchBar");
+    const searchInput = document.getElementById("searchInput");
+    const modal = document.getElementById("modal");
+    const modalOverlay = document.getElementById("modalOverlay");
+    const addEntryButton = document.getElementById("addEntryButton");
+    const modalSubmitButton = document.getElementById("modalSubmitButton");
+    const entryTitle = document.getElementById("entryTitle");
+    const entryDescription = document.getElementById("entryDescription");
+
+    // Утилиты
+    function toggleDropdown(menu) {
+      const isOpen = menu.style.display === "block";
+      closeAllDropdowns();
+      if (!isOpen) {
+        menu.style.display = "block";
+      }
+    }
+
+    function closeAllDropdowns() {
+      document.querySelectorAll(".filter-dropdown, .sort-dropdown, .card-menu-dropdown").forEach(menu => {
+        menu.style.display = "none";
+      });
+    }
+
+    function formatDate(date) {
+      return new Intl.DateTimeFormat('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }).format(date);
+    }
+
+    // Рендеринг записей
+    function renderEntry(entry) {
+      const entryElement = document.createElement("div");
+      entryElement.classList.add("ios-card");
+      entryElement.dataset.entryId = entry.id;
+      
+      const isLiked = entry.likedBy.includes(currentUser.id);
+      const isFavorited = favorites.has(entry.id);
+      const isOwner = entry.creator.id === currentUser.id;
+
+      entryElement.innerHTML = `
+        <div class="ios-tags">
+          ${entry.tags.city !== "все" ? `<span class="ios-tag">${entry.tags.city}</span>` : ""}
+          ${entry.tags.type !== "все" ? `<span class="ios-tag">${entry.tags.type}</span>` : ""}
+          ${entry.tags.date !== "все" ? `<span class="ios-tag">${entry.tags.date}</span>` : ""}
+          ${entry.tags.gender !== "Не важно" ? `<span class="ios-tag">${entry.tags.gender}</span>` : ""}
+        </div>
+        <h2 class="ios-title">${entry.title}</h2>
+        <p class="ios-description">${entry.description}</p>
+        <div class="ios-card-footer">
+          <div class="user-info">
+            <img src="${entry.creator.avatar}" alt="avatar" />
+            <span>${entry.creator.name}</span>
+          </div>
+          <div class="actions">
+            <button class="like-btn ${isLiked ? 'liked' : ''}" data-entry-id="${entry.id}">
+              <svg viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+              <span>${entry.likedBy.length}</span>
+            </button>
+            <div class="relative">
+              <button class="card-menu-btn focus:outline-none">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M6 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM12 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM18 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
+                </svg>
+              </button>
+              <div class="card-menu-dropdown">
+                ${isOwner ? '<a href="#" data-option="Изменить">Изменить</a>' : ''}
+                ${isOwner ? '<a href="#" data-option="Удалить">Удалить</a>' : ''}
+                <a href="#" data-option="Скрыть">Скрыть</a>
+                <a href="#" data-option="favorite">${isFavorited ? "Удалить из избранного" : "В избранное"}</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      return entryElement;
+    }
+
+    function applyFilters(entriesList) {
+      return entriesList.filter(entry => {
+        const searchLower = filters.search.toLowerCase();
+        const matchesSearch = !filters.search || 
+          entry.title.toLowerCase().includes(searchLower) || 
+          entry.description.toLowerCase().includes(searchLower) ||
+          entry.creator.name.toLowerCase().includes(searchLower);
+
+        return (
+          (filters.city === "все" || entry.tags.city === filters.city) &&
+          (filters.type === "все" || entry.tags.type === filters.type) &&
+          (filters.date === "все" || entry.tags.date === filters.date) &&
+          (filters.gender === "Не важно" || entry.tags.gender === filters.gender) &&
+          matchesSearch &&
+          (!filters.creator || entry.creator.id === filters.creator) &&
+          (!filters.favorite || favorites.has(entry.id))
+        );
+      });
+    }
+
+    function applySorting(entriesList) {
+      const sorted = [...entriesList];
+      
+      switch (currentSort) {
+        case "Новые":
+          return sorted.sort((a, b) => b.timestamp - a.timestamp);
+        case "Старые":
+          return sorted.sort((a, b) => a.timestamp - b.timestamp);
+        case "По рейтингу":
+          return sorted.sort((a, b) => b.likedBy.length - a.likedBy.length);
+        case "Мои":
+          return sorted.filter(entry => entry.creator.id === currentUser.id)
+                      .sort((a, b) => b.timestamp - a.timestamp);
+        case "Избранное":
+          return sorted.filter(entry => favorites.has(entry.id))
+                      .sort((a, b) => b.timestamp - a.timestamp);
+        default:
+          return sorted;
+      }
+    }
+
+    function renderEntries(pageEntries) {
+      pageEntries.forEach(entry => {
+        entriesContainer.appendChild(renderEntry(entry));
+      });
+    }
+
+    function loadEntries() {
+      loadingIndicator.classList.add("active");
+      
+      setTimeout(() => {
+        // Применяем фильтры и сортировку
+        let filteredEntries = applyFilters(entries);
+        filteredEntries = applySorting(filteredEntries);
+        
+        // Пагинация
+        const start = (currentPage - 1) * entriesPerPage;
+        const end = start + entriesPerPage;
+        const pageEntries = filteredEntries.slice(start, end);
+        
+        renderEntries(pageEntries);
+        loadingIndicator.classList.remove("active");
+      }, 500);
+    }
+
+    function refreshEntries() {
+      entriesContainer.innerHTML = "";
+      const sentinel = document.createElement("div");
+      sentinel.style.height = "1px";
+      entriesContainer.appendChild(sentinel);
+      observer.observe(sentinel);
+      currentPage = 1;
+      loadEntries();
+    }
+
+    // Обработчики событий для фильтров
+    function setupFilter(buttonId, menuId, labelId, filterKey) {
+      const button = document.getElementById(buttonId);
+      const menu = document.getElementById(menuId);
+      const label = document.getElementById(labelId);
+
+      button.addEventListener("click", function(e) {
+        e.stopPropagation();
+        toggleDropdown(menu);
+      });
+
+      menu.querySelectorAll("a").forEach(item => {
+        item.addEventListener("click", function(e) {
+          e.preventDefault();
+          const value = this.dataset.option;
+          label.textContent = value === "все" || value === "Не важно" ? "все" : "выбрано";
+          filters[filterKey] = value;
+          refreshEntries();
+          closeAllDropdowns();
+        });
+      });
+    }
+
+    function setupModalFilter(buttonId, menuId, labelId) {
+      const button = document.getElementById(buttonId);
+      const menu = document.getElementById(menuId);
+      const label = document.getElementById(labelId);
+
+      button.addEventListener("click", function(e) {
+        e.stopPropagation();
+        toggleDropdown(menu);
+      });
+
+      menu.querySelectorAll("a").forEach(item => {
+        item.addEventListener("click", function(e) {
+          e.preventDefault();
+          const value = this.dataset.option;
+          label.textContent = value === "все" || value === "Не важно" ? "все" : "выбрано";
+          label.dataset.value = value;
+          closeAllDropdowns();
+        });
+      });
+    }
+
+    // Настройка фильтров
+    setupFilter("cityDropdownButton", "cityDropdownMenu", "cityLabel", "city");
+    setupFilter("typeDropdownButton", "typeDropdownMenu", "typeLabel", "type");
+    setupFilter("genderDropdownButton", "genderDropdownMenu", "genderLabel", "gender");
+
+    setupModalFilter("modalCityDropdownButton", "modalCityDropdownMenu", "modalCityLabel");
+    setupModalFilter("modalTypeDropdownButton", "modalTypeDropdownMenu", "modalTypeLabel");
+    setupModalFilter("modalGenderDropdownButton", "modalGenderDropdownMenu", "modalGenderLabel");
+
+    // Обработчик для даты
+    const dateButton = document.getElementById("dateDropdownButton");
+    const dateMenu = document.getElementById("dateDropdownMenu");
+    const dateLabel = document.getElementById("dateLabel");
+    const datePicker = document.getElementById("datePicker");
+
+    dateButton.addEventListener("click", function(e) {
+      e.stopPropagation();
+      toggleDropdown(dateMenu);
+    });
+
+    datePicker.addEventListener("change", function() {
+      dateLabel.textContent = this.value ? "выбрано" : "все";
+      filters.date = this.value || "все";
+      refreshEntries();
+      closeAllDropdowns();
+    });
+
+    // Модальное окно для даты
+    const modalDateButton = document.getElementById("modalDateDropdownButton");
+    const modalDateMenu = document.getElementById("modalDateDropdownMenu");
+    const modalDateLabel = document.getElementById("modalDateLabel");
+    const modalDatePicker = document.getElementById("modalDatePicker");
+
+    modalDateButton.addEventListener("click", function(e) {
+      e.stopPropagation();
+      toggleDropdown(modalDateMenu);
+    });
+
+    modalDatePicker.addEventListener("change", function() {
+      modalDateLabel.textContent = this.value ? "выбрано" : "все";
+      closeAllDropdowns();
+    });
+
+    // Поиск
+    searchButton.addEventListener("click", () => {
+      searchBar.classList.toggle("active");
+      if (searchBar.classList.contains("active")) {
+        searchInput.focus();
+      } else {
+        searchInput.value = "";
+        filters.search = "";
+        refreshEntries();
+      }
+    });
+
+    searchInput.addEventListener("input", () => {
+      filters.search = searchInput.value;
+      refreshEntries();
+    });
+
+    // Сортировка
+    const sortButton = document.getElementById("sortDropdownButton");
+    const sortMenu = document.getElementById("sortDropdownMenu");
+
+    sortButton.addEventListener("click", function(e) {
+      e.stopPropagation();
+      toggleDropdown(sortMenu);
+    });
+
+    sortMenu.querySelectorAll("a").forEach(item => {
+      item.addEventListener("click", function(e) {
+        e.preventDefault();
+        currentSort = this.dataset.option;
+        
+        // Сброс специальных фильтров при обычной сортировке
+        if (currentSort !== "Мои" && currentSort !== "Избранное") {
+          filters.creator = null;
+          filters.favorite = false;
+        }
+        
+        refreshEntries();
+        closeAllDropdowns();
+      });
+    });
+
+    // Модальное окно
+    addEntryButton.addEventListener("click", function() {
+      document.getElementById("modalUserInfo").innerHTML = `
+        <img src="${currentUser.avatar}" alt="avatar" />
+        <span>${currentUser.name}</span>
+      `;
+      
+      // Сброс формы
+      entryTitle.value = "";
+      entryDescription.value = "";
+      document.getElementById("modalCityLabel").textContent = "все";
+      document.getElementById("modalTypeLabel").textContent = "все";
+      document.getElementById("modalDateLabel").textContent = "все";
+      document.getElementById("modalGenderLabel").textContent = "все";
+      modalDatePicker.value = "";
+      
+      modal.classList.add("active");
+      modalOverlay.classList.add("active");
+    });
+
+    modalOverlay.addEventListener("click", function() {
+      modal.classList.remove("active");
+      modalOverlay.classList.remove("active");
+    });
+
+    modalSubmitButton.addEventListener("click", function() {
+      const city = document.getElementById("modalCityLabel").dataset.value || "все";
+      const type = document.getElementById("modalTypeLabel").dataset.value || "все";
+      const gender = document.getElementById("modalGenderLabel").dataset.value || "Не важно";
+      const date = modalDatePicker.value || "все";
+
+      const newEntry = {
+        id: Math.max(...entries.map(e => e.id), 0) + 1,
+        title: entryTitle.value || `Запись от ${formatDate(new Date())}`,
+        description: entryDescription.value || "Описание отсутствует",
+        tags: { city, type, date, gender },
+        creator: currentUser,
+        likedBy: [],
+        timestamp: new Date()
+      };
+
+      entries.unshift(newEntry);
+      modal.classList.remove("active");
+      modalOverlay.classList.remove("active");
+      refreshEntries();
+    });
+
+    // Обработчики действий с записями
+    entriesContainer.addEventListener("click", function(e) {
+      // Лайки
+      const likeBtn = e.target.closest(".like-btn");
+      if (likeBtn) {
+        const entryId = parseInt(likeBtn.dataset.entryId);
+        const entry = entries.find(e => e.id === entryId);
+        if (entry) {
+          if (entry.likedBy.includes(currentUser.id)) {
+            entry.likedBy = entry.likedBy.filter(id => id !== currentUser.id);
+          } else {
+            entry.likedBy.push(currentUser.id);
+          }
+          refreshEntries();
+        }
+        return;
+      }
+
+      // Меню карточки
+      const menuButton = e.target.closest(".card-menu-btn");
+      if (menuButton) {
+        e.stopPropagation();
+        const dropdown = menuButton.nextElementSibling;
+        toggleDropdown(dropdown);
+        return;
+      }
+
+      // Действия меню
+      const menuItem = e.target.closest(".card-menu-dropdown a");
+      if (menuItem) {
+        e.preventDefault();
+        const entryElement = menuItem.closest(".ios-card");
+        const entryId = parseInt(entryElement.dataset.entryId);
+        const option = menuItem.dataset.option;
+        
+        if (option === "favorite") {
+          if (favorites.has(entryId)) {
+            favorites.delete(entryId);
+          } else {
+            favorites.add(entryId);
+          }
+          refreshEntries();
+        } else if (option === "Удалить") {
+          entries = entries.filter(entry => entry.id !== entryId);
+          refreshEntries();
+        } else if (option === "Скрыть") {
+          entryElement.style.display = "none";
+        } else if (option === "Изменить") {
+          const entry = entries.find(entry => entry.id === entryId);
+          if (entry && entry.creator.id === currentUser.id) {
+            // Заполняем форму данными записи
+            entryTitle.value = entry.title;
+            entryDescription.value = entry.description;
+            
+            document.getElementById("modalCityLabel").textContent = entry.tags.city === "все" ? "все" : "выбрано";
+            document.getElementById("modalCityLabel").dataset.value = entry.tags.city;
+            
+            document.getElementById("modalTypeLabel").textContent = entry.tags.type === "все" ? "все" : "выбрано";
+            document.getElementById("modalTypeLabel").dataset.value = entry.tags.type;
+            
+            document.getElementById("modalGenderLabel").textContent = entry.tags.gender === "Не важно" ? "все" : "выбрано";
+            document.getElementById("modalGenderLabel").dataset.value = entry.tags.gender;
+            
+            modalDatePicker.value = entry.tags.date === "все" ? "" : entry.tags.date;
+            document.getElementById("modalDateLabel").textContent = entry.tags.date === "все" ? "все" : "выбрано";
+            
+            // Удаляем старую запись
+            entries = entries.filter(e => e.id !== entryId);
+            
+            document.getElementById("modalUserInfo").innerHTML = `
+              <img src="${currentUser.avatar}" alt="avatar" />
+              <span>${currentUser.name}</span>
+            `;
+            
+            modal.classList.add("active");
+            modalOverlay.classList.add("active");
+          }
+        }
+        closeAllDropdowns();
+      }
+    });
+
+    // Pull to refresh
+    let startY = 0;
+    let isPulling = false;
+
+    entriesContainer.addEventListener("touchstart", e => {
+      startY = e.touches[0].clientY;
+      isPulling = window.scrollY === 0;
+    });
+
+    entriesContainer.addEventListener("touchmove", e => {
+      if (!isPulling) return;
+      const currentY = e.touches[0].clientY;
+      const deltaY = currentY - startY;
+      if (deltaY > 50) {
+        entriesContainer.classList.add("pulling");
+      }
+    });
+
+    entriesContainer.addEventListener("touchend", () => {
+      if (entriesContainer.classList.contains("pulling")) {
+        entriesContainer.classList.remove("pulling");
+        loadingIndicator.classList.add("active");
+        setTimeout(() => {
+          refreshEntries();
+        }, 1000);
+      }
+      isPulling = false;
+    });
+
+    // Закрытие выпадающих меню при клике вне их
+    document.addEventListener("click", function(event) {
+      if (!event.target.closest("#searchBar, #searchButton")) {
+        searchBar.classList.remove("active");
+      }
+      if (!event.target.closest(".filter-btn, .sort-btn, .card-menu-btn, .filter-dropdown, .sort-dropdown, .card-menu-dropdown")) {
+        closeAllDropdowns();
+      }
+    });
+
+    // Infinite scroll
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        currentPage++;
+        loadEntries();
+      }
+    }, { threshold: 0.1 });
+
+    // Инициализация
+    entries.sort((a, b) => b.timestamp - a.timestamp);
+    refreshEntries();
+
+    // Инициализация Telegram WebApp
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+  </script>
+</body>
+</html>
