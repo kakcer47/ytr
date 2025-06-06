@@ -179,10 +179,15 @@
       align-items: center;
       gap: 12px;
     }
+    .card-menu-container {
+      padding-top: 8px;
+      display: flex;
+      justify-content: flex-end;
+    }
     .ios-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 4px;
+      gap: 3px;
       margin-bottom: 8px;
     }
     .ios-tag {
@@ -763,29 +768,32 @@
 
       entryElement.innerHTML = `
         <div class="ios-tags">
-          ${entry.tags.city !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.city)}</span>` : ""}
-          ${entry.tags.type !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.type)}</span>` : ""}
-          ${entry.tags.date !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.date)}</span>` : ""}
-          ${entry.tags.gender !== "Не важно" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.gender)}</span>` : ""}
-        </div>
-        <h2 class="ios-title">${sanitizeHtml(entry.title)}</h2>
-        <p class="ios-description">${sanitizeHtml(entry.description)}</p>
-        <div class="ios-card-footer">
-          <div class="user-info" data-user-id="${entry.creator.id}">
-            <img src="${entry.creator.avatar}" alt="avatar" loading="lazy" />
-            <span>${sanitizeHtml(entry.creator.name)}</span>
+            ${entry.tags.city !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.city)}</span>` : ""}
+            ${entry.tags.type !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.type)}</span>` : ""}
+            ${entry.tags.date !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.date)}</span>` : ""}
+            ${entry.tags.gender !== "Не важно" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.gender)}</span>` : ""}
           </div>
-          <div class="actions">
-            <button class="like-btn ${isLiked ? 'liked' : ''}" data-entry-id="${entry.id}">
-              <svg viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                <path d="M8.58737 8.23597L11.1849 3.00376C11.5183 2.33208 12.4817 2.33208 12.8151 3.00376L15.4126 8.23597L21.2215 9.08017C21.9668 9.18848 22.2638 10.0994 21.7243 10.6219L17.5217 14.6918L18.5135 20.4414C18.6409 21.1798 17.8614 21.7428 17.1945 21.3941L12 18.678L6.80547 21.3941C6.1386 21.7428 5.35909 21.1798 5.48645 20.4414L6.47825 14.6918L2.27575 10.6219C1.73617 10.0994 2.03322 9.18848 2.77852 9.08017L8.58737 8.23597Z" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span>${entry.likedBy.length}</span>
-            </button>
+          <h2 class="ios-title">${sanitizeHtml(entry.title)}</h2>
+          <p class="ios-description">${sanitizeHtml(entry.description)}</p>
+          <div class="ios-card-footer">
+            <div class="user-info" data-user-id="${entry.creator.id}">
+              <img src="${entry.creator.avatar}" alt="avatar" loading="lazy" />
+              <span>${sanitizeHtml(entry.creator.name)}</span>
+            </div>
+            <div class="actions">
+              <button class="like-btn ${isLiked ? 'liked' : ''}" data-entry-id="${entry.id}">
+                <svg viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                  <path d="M8.58737 8.23597L11.1849 3.00376C11.5183 2.33208 12.4817 2.33208 12.8151 3.00376L15.4126 8.23597L21.2215 9.08017C21.9668 9.18848 22.2638 10.0994 21.7243 10.6219L17.5217 14.6918L18.5135 20.4414C18.6409 21.1798 17.8614 21.7428 17.1945 21.3941L12 18.678L6.80547 21.3941C6.1386 21.7428 5.35909 21.1798 5.48645 20.4414L6.47825 14.6918L2.27575 10.6219C1.73617 10.0994 2.03322 9.18848 2.77852 9.08017L8.58737 8.23597Z" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>${entry.likedBy.length}</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-menu-container">
             <div class="relative">
               <button class="card-menu-btn focus:outline-none">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M6 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM12 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM18 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
+                  <path d="M6 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM12 10c0 1.105-.895 2-2 2s-2-1.895-2-2 .895-2 2-2 2 .895 2 2zM18 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
                 </svg>
               </button>
               <div class="card-menu-dropdown">
