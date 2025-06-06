@@ -133,17 +133,22 @@
     }
     .ios-title {
       font-size: 18px;
-      font-weight: 600;
       color: #0a0a0a;
-      margin: 8px 0;
+      margin: 2px 0;
       word-wrap: break-word;
     }
     .ios-description {
-      font-size: 12px;
+      font-size: 16px;
       color: #3c3c43;
       line-height: 1.4;
       margin: 0 0 16px;
       word-wrap: break-word;
+    }
+    .counter {
+      font-size: 12px;
+      color: #3c3c43;
+      margin-top: 4px;
+      text-align: right;
     }
     .ios-card-footer {
       border-top: 1px solid #D1D1D6;
@@ -275,12 +280,11 @@
       padding: 12px;
       font-size: 16px;
       font-family: 'Rubik', sans-serif;
-      margin-bottom: 12px;
+      margin-bottom: 6px;
       box-sizing: border-box;
       transition: border-color 0.2s ease;
     }
     .modal-content input:focus, .modal-content textarea:focus {
-      border-color: #007AFF;
       outline: none;
     }
     .modal-content textarea {
@@ -343,7 +347,7 @@
     .sort-container {
       position: sticky;
       top: 50px;
-      background: rgba(250, 250, 250, 0.8);
+      background: #f8f7f6a4;
       backdrop-filter: blur(10px);
       z-index: 5;
       padding: 10px 0;
@@ -354,6 +358,8 @@
     .main-content {
       padding-top: 40px;
       padding-bottom: 100px;
+      padding-left: 16px; /* Отступ слева */
+      padding-right: 16px; /* Отступ справа */
     }
     .header-separator {
       font-size: 10px;
@@ -580,10 +586,11 @@
       </div>
     </div>
     <div class="modal-content">
-      <input type="text" id="entryTitle" placeholder="Заголовок записи" maxlength="100" />
+      <input type="text" id="entryTitle" placeholder="Заголовок записи" maxlength="64" />
+      <div id="titleCounter" class="counter">Осталось: 64 символов</div>
       <div id="titleError" class="error-message">Заголовок обязателен</div>
-      <hr />
-      <textarea id="entryDescription" placeholder="Описание записи" maxlength="500"></textarea>
+      <textarea id="entryDescription" placeholder="Описание записи" maxlength="350"></textarea>
+      <div id="descriptionCounter" class="counter">Осталось: 350 символов</div>
       <div id="descriptionError" class="error-message">Описание обязательно</div>
       <div id="successMessage" class="success-message">Запись успешно создана!</div>
     </div>
@@ -1041,6 +1048,16 @@
       });
     });
 
+    entryTitle.addEventListener("input", function() {
+      const remaining = 64 - this.value.length;
+      document.getElementById("titleCounter").textContent = `Осталось: ${remaining} символов`;
+    });
+
+    entryDescription.addEventListener("input", function() {
+      const remaining = 350 - this.value.length;
+      document.getElementById("descriptionCounter").textContent = `Осталось: ${remaining} символов`;
+    });
+
     // Модальное окно
     addEntryButton.addEventListener("click", function() {
       document.getElementById("modalUserInfo").innerHTML = `
@@ -1107,6 +1124,8 @@
           refreshEntries();
         }, 1000);
       }, 500);
+        document.getElementById("titleCounter").textContent = `Осталось: 64 символов`;
+        document.getElementById("descriptionCounter").textContent = `Осталось: 350 символов`;
     });
 
     // Обработчики действий с записями
