@@ -275,7 +275,7 @@
     .sort-container {
       position: sticky;
       top: 60px;
-      background: #f8f7f600;
+      background: transparent;
       z-index: 5;
       padding: 10px 0;
     }
@@ -341,9 +341,9 @@
               <img src="https://www.svgrepo.com/show/324999/calendar.svg" alt="дата"/>
               <span class="ml-1">дата</span>
             </button>
-            <div id="dateLabel" class="filter-label">все</div>
             <div id="dateDropdownMenu" class="filter-dropdown">
               <input type="date" id="datePicker" class="text-xs border rounded px-1 py-0.5" />
+              <button id="dateSelectButton" class="text-xs bg-blue-500 text-white px-2 py-1 rounded mt-1">Выбрать</button>
             </div>
           </div>
           <span class="text-gray-400 text-xs mx-1">|</span>
@@ -589,7 +589,7 @@
         <h2 class="ios-title">${entry.title}</h2>
         <p class="ios-description">${entry.description}</p>
         <div class="ios-card-footer">
-          <div class="user-info">
+          <div class="user-info" data-user-id="${entry.creator.id}">
             <img src="${entry.creator.avatar}" alt="avatar" />
             <span>${entry.creator.name}</span>
           </div>
@@ -759,9 +759,11 @@
       toggleDropdown(dateMenu);
     });
 
-    datePicker.addEventListener("change", function() {
-      dateLabel.textContent = this.value ? "выбрано" : "все";
-      filters.date = this.value || "все";
+    const dateSelectButton = document.getElementById("dateSelectButton");
+    dateSelectButton.addEventListener("click", function() {
+      const selectedDate = datePicker.value;
+      dateLabel.textContent = selectedDate ? "выбрано" : "все";
+      filters.date = selectedDate || "все";
       refreshEntries();
       closeAllDropdowns();
     });
@@ -812,13 +814,16 @@
       item.addEventListener("click", function(e) {
         e.preventDefault();
         currentSort = this.dataset.option;
-        
+    
         // Сброс специальных фильтров при обычной сортировке
         if (currentSort !== "Мои" && currentSort !== "Избранное") {
           filters.creator = null;
           filters.favorite = false;
         }
-        
+    
+        // Обновляем текст кнопки
+        sortButton.querySelector("span").textContent = this.textContent;
+    
         refreshEntries();
         closeAllDropdowns();
       });
@@ -950,6 +955,13 @@
           }
         }
         closeAllDropdowns();
+
+      const userInfo = e.target.closest(".user-info");
+      if (userInfo) {
+        const userId = userInfo.dataset.userId;
+        if (userId && window.Telegram?.WebApp) {
+          window.Telegram.WebApp.openTelegramLink(`tg://user?id=${userId}`);
+        }
       }
     });
 
