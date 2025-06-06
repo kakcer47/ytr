@@ -34,9 +34,12 @@
       backdrop-filter: blur(10px);
       padding: 10px;
       z-index: 15;
+      transform: translateY(-100%);
+      transition: transform 0.3s ease-in-out;
     }
     .search-bar.active {
       display: block;
+      transform: translateY(0);
     }
     .search-bar input {
       width: 100%;
@@ -59,6 +62,14 @@
       border-radius: 10px;
       margin-top: 5px;
       z-index: 10;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .filter-dropdown.show, .sort-dropdown.show, .card-menu-dropdown.show {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
     }
     .card-menu-dropdown {
       right: 0;
@@ -70,6 +81,7 @@
       font-size: 14px;
       color: #000;
       text-decoration: none;
+      transition: background-color 0.2s ease;
     }
     .filter-dropdown a:hover, .sort-dropdown a:hover, .card-menu-dropdown a:hover {
       background-color: #F2F2F7;
@@ -88,6 +100,10 @@
       padding: 0;
       cursor: pointer;
       font-size: 14px;
+      transition: opacity 0.2s ease;
+    }
+    .filter-btn:hover, .sort-btn:hover {
+      opacity: 0.7;
     }
     .filter-btn img, .sort-btn img {
       width: 18px;
@@ -98,23 +114,36 @@
       border-radius: 20px;
       padding: 20px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      transition: background-color 0.2s;
+      transition: all 0.3s ease;
       margin-bottom: 16px;
+      transform: translateY(0);
+      opacity: 1;
     }
     .ios-card:active {
       background-color: #F2F2F7;
+      transform: scale(0.98);
+    }
+    .ios-card.entering {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .ios-card.entered {
+      opacity: 1;
+      transform: translateY(0);
     }
     .ios-title {
       font-size: 18px;
       font-weight: 600;
       color: #0a0a0a;
       margin: 8px 0;
+      word-wrap: break-word;
     }
     .ios-description {
       font-size: 12px;
       color: #3c3c43;
       line-height: 1.4;
       margin: 0 0 16px;
+      word-wrap: break-word;
     }
     .ios-card-footer {
       border-top: 1px solid #D1D1D6;
@@ -128,6 +157,11 @@
       align-items: center;
       font-size: 14px;
       color: #3c3c43;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+    .ios-card-footer .user-info:hover {
+      opacity: 0.7;
     }
     .ios-card-footer .user-info img {
       width: 24px;
@@ -152,27 +186,33 @@
       border: 1px solid #D1D1D6;
       border-radius: 10px;
       padding: 2px 6px;
+      background: #F2F2F7;
     }
     .floating-btn {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background-color: #d97757;
+      background: linear-gradient(135deg, #d97757, #e68a6b);
       color: #fff;
-      width: 50px;
-      height: 50px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 6px 20px rgba(217, 119, 87, 0.4);
       font-size: 24px;
       cursor: pointer;
       z-index: 20;
       border: none;
+      transition: all 0.3s ease;
     }
     .floating-btn:hover {
-      background-color: #d97757;
+      transform: scale(1.1);
+      box-shadow: 0 8px 25px rgba(217, 119, 87, 0.5);
+    }
+    .floating-btn:active {
+      transform: scale(0.95);
     }
     .modal {
       display: none;
@@ -183,13 +223,13 @@
       background-color: #fcfcfc;
       border-top-left-radius: 20px;
       border-top-right-radius: 20px;
-      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
       max-width: 500px;
       margin: 0 auto;
       padding: 20px;
       z-index: 30;
       transform: translateY(100%);
-      transition: transform 0.3s ease-in-out;
+      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
     .modal.active {
       display: block;
@@ -204,9 +244,12 @@
       bottom: 0;
       background-color: rgba(0, 0, 0, 0.5);
       z-index: 25;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
     .modal-overlay.active {
       display: block;
+      opacity: 1;
     }
     .modal-header {
       display: flex;
@@ -229,42 +272,67 @@
       width: 100%;
       border: 1px solid #D1D1D6;
       border-radius: 10px;
-      padding: 10px;
+      padding: 12px;
       font-size: 16px;
       font-family: 'Rubik', sans-serif;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       box-sizing: border-box;
+      transition: border-color 0.2s ease;
+    }
+    .modal-content input:focus, .modal-content textarea:focus {
+      border-color: #007AFF;
+      outline: none;
     }
     .modal-content textarea {
       resize: none;
-      height: 150px;
+      height: 120px;
     }
     .modal-content hr {
       border: 0;
       border-top: 1px solid #D1D1D6;
-      margin: 10px 0;
+      margin: 15px 0;
     }
     .modal-submit-btn {
-      background-color: #007bff00;
+      background: linear-gradient(135deg, #007AFF, #0056CC);
       color: #fcfcfc;
-      padding: 8px 16px;
-      border-radius: 10px;
+      padding: 10px 20px;
+      border-radius: 12px;
       border: none;
-      font-size: 14px;
+      font-size: 16px;
+      font-weight: 500;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
     .modal-submit-btn:hover {
-      background-color: #005cc4;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+    .modal-submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
     .loading-indicator {
       display: none;
       text-align: center;
-      padding: 10px;
+      padding: 20px;
       font-size: 14px;
       color: #3c3c43;
     }
     .loading-indicator.active {
       display: block;
+    }
+    .loading-spinner {
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #007AFF;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
     .pull-to-refresh {
       transition: transform 0.3s ease;
@@ -274,8 +342,8 @@
     }
     .sort-container {
       position: sticky;
-      top: 40px;
-      background: #fafafa65;
+      top: 60px;
+      background: rgba(250, 250, 250, 0.8);
       backdrop-filter: blur(10px);
       z-index: 5;
       padding: 10px 0;
@@ -284,11 +352,11 @@
       display: none;
     }
     .main-content {
-      padding-top: 40px;
-      padding-bottom: 80px;
+      padding-top: 60px;
+      padding-bottom: 100px;
     }
     .header-separator {
-      font-size: 10px; /* Уменьшите размер шрифта, чтобы сделать линию тоньше */
+      font-size: 10px;
       color: #D1D1D6;
       margin: 0 4px;
     }
@@ -300,9 +368,13 @@
       cursor: pointer;
       font-size: 14px;
       color: #3C3C4399;
+      transition: all 0.2s ease;
     }
     .like-btn.liked {
       color: #d97757;
+    }
+    .like-btn:hover {
+      transform: scale(1.05);
     }
     .like-btn svg {
       width: 20px;
@@ -311,6 +383,29 @@
     }
     .relative {
       position: relative;
+    }
+    .error-message {
+      color: #FF3B30;
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
+    }
+    .success-message {
+      color: #34C759;
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #3c3c43;
+    }
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      opacity: 0.5;
     }
   </style>
 </head>
@@ -329,6 +424,7 @@
               <a href="#" data-option="все">все</a>
               <a href="#" data-option="Москва">Москва</a>
               <a href="#" data-option="Ростов">Ростов</a>
+              <a href="#" data-option="Санкт-Петербург">Санкт-Петербург</a>
             </div>
           </div>
           <span class="header-separator">|</span>
@@ -342,6 +438,8 @@
               <a href="#" data-option="все">все</a>
               <a href="#" data-option="Спорт">Спорт</a>
               <a href="#" data-option="Духовность">Духовность</a>
+              <a href="#" data-option="Работа">Работа</a>
+              <a href="#" data-option="Путешествия">Путешествия</a>
             </div>
           </div>
           <span class="header-separator">|</span>
@@ -393,6 +491,7 @@
   </div>
   
   <div class="loading-indicator max-w-md mx-auto pt-20" id="loadingIndicator">
+    <div class="loading-spinner"></div>
     Загрузка...
   </div>
   
@@ -437,6 +536,7 @@
           <a href="#" data-option="все">все</a>
           <a href="#" data-option="Москва">Москва</a>
           <a href="#" data-option="Ростов">Ростов</a>
+          <a href="#" data-option="Санкт-Петербург">Санкт-Петербург</a>
         </div>
       </div>
       <span class="header-separator">|</span>
@@ -450,6 +550,8 @@
           <a href="#" data-option="все">все</a>
           <a href="#" data-option="Спорт">Спорт</a>
           <a href="#" data-option="Духовность">Духовность</a>
+          <a href="#" data-option="Работа">Работа</a>
+          <a href="#" data-option="Путешествия">Путешествия</a>
         </div>
       </div>
       <span class="header-separator">|</span>
@@ -478,13 +580,35 @@
       </div>
     </div>
     <div class="modal-content">
-      <input type="text" id="entryTitle" placeholder="Заголовок записи" />
+      <input type="text" id="entryTitle" placeholder="Заголовок записи" maxlength="100" />
+      <div id="titleError" class="error-message">Заголовок обязателен</div>
       <hr />
-      <textarea id="entryDescription" placeholder="Описание записи"></textarea>
+      <textarea id="entryDescription" placeholder="Описание записи" maxlength="500"></textarea>
+      <div id="descriptionError" class="error-message">Описание обязательно</div>
+      <div id="successMessage" class="success-message">Запись успешно создана!</div>
     </div>
   </div>
 
   <script>
+    // Утилиты для санитизации
+    function sanitizeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
     // Инициализация данных пользователя
     const currentUser = {
       id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || Math.floor(Math.random() * 1000000),
@@ -495,7 +619,8 @@
     const sampleUsers = [
       { id: 2, name: "Алексей", avatar: "https://ui-avatars.com/api/?name=Алексей&background=34C759&color=fff&size=64" },
       { id: 3, name: "Мария", avatar: "https://ui-avatars.com/api/?name=Мария&background=FF9500&color=fff&size=64" },
-      { id: 4, name: "Дмитрий", avatar: "https://ui-avatars.com/api/?name=Дмитрий&background=FF3B30&color=fff&size=64" }
+      { id: 4, name: "Дмитрий", avatar: "https://ui-avatars.com/api/?name=Дмитрий&background=FF3B30&color=fff&size=64" },
+      { id: 5, name: "Анна", avatar: "https://ui-avatars.com/api/?name=Анна&background=AF52DE&color=fff&size=64" }
     ];
 
     let favorites = new Set();
@@ -503,7 +628,7 @@
       {
         id: 1,
         title: "Запись от 06 июня 2025",
-        description: "Сегодня я посвятил время саморазвитию и размышлениям. Читал книгу о медитации и практиковал осознанность.",
+        description: "Сегодня я посвятил время саморазвитию и размышлениям. Читал книгу о медитации и практиковал осознанность. Это помогло мне найти внутренний покой и лучше понять себя.",
         tags: { city: "Москва", type: "Духовность", date: "2025-06-06", gender: "Не важно" },
         creator: sampleUsers[0],
         likedBy: [currentUser.id],
@@ -512,24 +637,33 @@
       {
         id: 2,
         title: "Спортивная тренировка",
-        description: "Отличная тренировка в спортзале. Сегодня фокусировался на силовых упражнениях и кардио.",
+        description: "Отличная тренировка в спортзале сегодня! Фокусировался на силовых упражнениях и завершил кардио. Чувствую прилив энергии и готовность к новым вызовам.",
         tags: { city: "Ростов", type: "Спорт", date: "2025-06-05", gender: "Мужчина" },
         creator: sampleUsers[1],
-        likedBy: [],
+        likedBy: [sampleUsers[2].id],
         timestamp: new Date('2025-06-05T18:30:00')
       },
       {
         id: 3,
         title: "Вечерние размышления",
-        description: "Прекрасный закат сегодня. Время подумать о целях на будущее и планах на завтра.",
+        description: "Прекрасный закат сегодня напомнил о красоте момента. Время подумать о целях на будущее и планах на завтра. Благодарна за этот день.",
         tags: { city: "Москва", type: "Духовность", date: "2025-06-04", gender: "Женщина" },
         creator: sampleUsers[2],
-        likedBy: [sampleUsers[0].id],
+        likedBy: [sampleUsers[0].id, currentUser.id],
         timestamp: new Date('2025-06-04T20:15:00')
+      },
+      {
+        id: 4,
+        title: "Рабочий проект",
+        description: "Завершил важный проект на работе. Командная работа показала отличные результаты, и я горжусь тем, что мы достигли.",
+        tags: { city: "Санкт-Петербург", type: "Работа", date: "2025-06-03", gender: "Мужчина" },
+        creator: sampleUsers[3],
+        likedBy: [sampleUsers[1].id],
+        timestamp: new Date('2025-06-03T15:45:00')
       }
     ];
 
-    // Глобальные перемены состояния
+    // Глобальные переменные состояния
     let currentPage = 1;
     const entriesPerPage = 25;
     let filters = { 
@@ -542,6 +676,7 @@
       favorite: false
     };
     let currentSort = "Новые";
+    let isLoading = false;
 
     // DOM элементы
     const entriesContainer = document.getElementById("entriesContainer");
@@ -558,16 +693,22 @@
 
     // Утилиты
     function toggleDropdown(menu) {
-      const isOpen = menu.style.display === "block";
+      const isOpen = menu.classList.contains('show');
       closeAllDropdowns();
       if (!isOpen) {
         menu.style.display = "block";
+        setTimeout(() => menu.classList.add('show'), 10);
       }
     }
 
     function closeAllDropdowns() {
       document.querySelectorAll(".filter-dropdown, .sort-dropdown, .card-menu-dropdown").forEach(menu => {
-        menu.style.display = "none";
+        menu.classList.remove('show');
+        setTimeout(() => {
+          if (!menu.classList.contains('show')) {
+            menu.style.display = "none";
+          }
+        }, 200);
       });
     }
 
@@ -579,10 +720,33 @@
       }).format(date);
     }
 
+    function validateForm() {
+      const title = entryTitle.value.trim();
+      const description = entryDescription.value.trim();
+      let isValid = true;
+
+      // Скрыть все сообщения об ошибках
+      document.querySelectorAll('.error-message, .success-message').forEach(el => {
+        el.style.display = 'none';
+      });
+
+      if (!title) {
+        document.getElementById('titleError').style.display = 'block';
+        isValid = false;
+      }
+
+      if (!description) {
+        document.getElementById('descriptionError').style.display = 'block';
+        isValid = false;
+      }
+
+      return isValid;
+    }
+
     // Рендеринг записей
     function renderEntry(entry) {
       const entryElement = document.createElement("div");
-      entryElement.classList.add("ios-card");
+      entryElement.classList.add("ios-card", "entering");
       entryElement.dataset.entryId = entry.id;
       
       const isLiked = entry.likedBy.includes(currentUser.id);
@@ -591,22 +755,22 @@
 
       entryElement.innerHTML = `
         <div class="ios-tags">
-          ${entry.tags.city !== "все" ? `<span class="ios-tag">${entry.tags.city}</span>` : ""}
-          ${entry.tags.type !== "все" ? `<span class="ios-tag">${entry.tags.type}</span>` : ""}
-          ${entry.tags.date !== "все" ? `<span class="ios-tag">${entry.tags.date}</span>` : ""}
-          ${entry.tags.gender !== "Не важно" ? `<span class="ios-tag">${entry.tags.gender}</span>` : ""}
+          ${entry.tags.city !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.city)}</span>` : ""}
+          ${entry.tags.type !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.type)}</span>` : ""}
+          ${entry.tags.date !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.date)}</span>` : ""}
+          ${entry.tags.gender !== "Не важно" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.gender)}</span>` : ""}
         </div>
-        <h2 class="ios-title">${entry.title}</h2>
-        <p class="ios-description">${entry.description}</p>
+        <h2 class="ios-title">${sanitizeHtml(entry.title)}</h2>
+        <p class="ios-description">${sanitizeHtml(entry.description)}</p>
         <div class="ios-card-footer">
           <div class="user-info" data-user-id="${entry.creator.id}">
-            <img src="${entry.creator.avatar}" alt="avatar" />
-            <span>${entry.creator.name}</span>
+            <img src="${entry.creator.avatar}" alt="avatar" loading="lazy" />
+            <span>${sanitizeHtml(entry.creator.name)}</span>
           </div>
           <div class="actions">
             <button class="like-btn ${isLiked ? 'liked' : ''}" data-entry-id="${entry.id}">
               <svg viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                <path xmlns="http://www.w3.org/2000/svg" d="M8.58737 8.23597L11.1849 3.00376C11.5183 2.33208 12.4817 2.33208 12.8151 3.00376L15.4126 8.23597L21.2215 9.08017C21.9668 9.18848 22.2638 10.0994 21.7243 10.6219L17.5217 14.6918L18.5135 20.4414C18.6409 21.1798 17.8614 21.7428 17.1945 21.3941L12 18.678L6.80547 21.3941C6.1386 21.7428 5.35909 21.1798 5.48645 20.4414L6.47825 14.6918L2.27575 10.6219C1.73617 10.0994 2.03322 9.18848 2.77852 9.08017L8.58737 8.23597Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8.58737 8.23597L11.1849 3.00376C11.5183 2.33208 12.4817 2.33208 12.8151 3.00376L15.4126 8.23597L21.2215 9.08017C21.9668 9.18848 22.2638 10.0994 21.7243 10.6219L17.5217 14.6918L18.5135 20.4414C18.6409 21.1798 17.8614 21.7428 17.1945 21.3941L12 18.678L6.80547 21.3941C6.1386 21.7428 5.35909 21.1798 5.48645 20.4414L6.47825 14.6918L2.27575 10.6219C1.73617 10.0994 2.03322 9.18848 2.77852 9.08017L8.58737 8.23597Z" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               <span>${entry.likedBy.length}</span>
             </button>
@@ -627,7 +791,26 @@
         </div>
       `;
 
+      // Анимация появления
+      setTimeout(() => {
+        entryElement.classList.remove('entering');
+        entryElement.classList.add('entered');
+      }, 50);
+
       return entryElement;
+    }
+
+    function renderEmptyState() {
+      const emptyElement = document.createElement("div");
+      emptyElement.classList.add("empty-state");
+      emptyElement.innerHTML = `
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 500;">Записей не найдено</h3>
+        <p style="margin: 0; font-size: 14px; opacity: 0.7;">Попробуйте изменить фильтры или создать новую запись</p>
+      `;
+      return emptyElement;
     }
 
     function applyFilters(entriesList) {
@@ -672,12 +855,21 @@
     }
 
     function renderEntries(pageEntries) {
-      pageEntries.forEach(entry => {
-        entriesContainer.appendChild(renderEntry(entry));
+      if (pageEntries.length === 0 && currentPage === 1) {
+        entriesContainer.appendChild(renderEmptyState());
+        return;
+      }
+
+      pageEntries.forEach((entry, index) => {
+        setTimeout(() => {
+          entriesContainer.appendChild(renderEntry(entry));
+        }, index * 50); // Staggered animation
       });
     }
 
     function loadEntries() {
+      if (isLoading) return;
+      isLoading = true;
       loadingIndicator.classList.add("active");
       
       setTimeout(() => {
@@ -692,7 +884,8 @@
         
         renderEntries(pageEntries);
         loadingIndicator.classList.remove("active");
-      }, 500);
+        isLoading = false;
+      }, 300);
     }
 
     function refreshEntries() {
@@ -772,15 +965,15 @@
 
     dateSelectButton.addEventListener("click", function(e) {
       e.stopPropagation();
-      datePicker.classList.remove("hidden"); // Показываем календарь
-      datePicker.focus(); // Фокус на календаре (опционально)
+      datePicker.classList.remove("hidden");
+      datePicker.focus();
     });
 
     datePicker.addEventListener("change", function() {
       const selectedDate = this.value;
       dateLabel.textContent = selectedDate ? "выбрано" : "все";
       filters.date = selectedDate || "все";
-      datePicker.classList.add("hidden"); // Скрываем календарь после выбора
+      datePicker.classList.add("hidden");
       refreshEntries();
       closeAllDropdowns();
     });
@@ -801,7 +994,12 @@
       closeAllDropdowns();
     });
 
-    // Поиск
+    // Поиск с дебаунсингом
+    const debouncedSearch = debounce(() => {
+      filters.search = searchInput.value;
+      refreshEntries();
+    }, 300);
+
     searchButton.addEventListener("click", () => {
       searchBar.classList.toggle("active");
       if (searchBar.classList.contains("active")) {
@@ -813,10 +1011,7 @@
       }
     });
 
-    searchInput.addEventListener("input", () => {
-      filters.search = searchInput.value;
-      refreshEntries();
-    });
+    searchInput.addEventListener("input", debouncedSearch);
 
     // Сортировка
     const sortButton = document.getElementById("sortDropdownButton");
@@ -850,7 +1045,7 @@
     addEntryButton.addEventListener("click", function() {
       document.getElementById("modalUserInfo").innerHTML = `
         <img src="${currentUser.avatar}" alt="avatar" />
-        <span>${currentUser.name}</span>
+        <span>${sanitizeHtml(currentUser.name)}</span>
       `;
       
       // Сброс формы
@@ -862,8 +1057,14 @@
       document.getElementById("modalGenderLabel").textContent = "все";
       modalDatePicker.value = "";
       
+      // Скрыть сообщения об ошибках
+      document.querySelectorAll('.error-message, .success-message').forEach(el => {
+        el.style.display = 'none';
+      });
+      
       modal.classList.add("active");
       modalOverlay.classList.add("active");
+      entryTitle.focus();
     });
 
     modalOverlay.addEventListener("click", function() {
@@ -872,6 +1073,11 @@
     });
 
     modalSubmitButton.addEventListener("click", function() {
+      if (!validateForm()) return;
+
+      modalSubmitButton.disabled = true;
+      modalSubmitButton.textContent = "Отправка...";
+
       const city = document.getElementById("modalCityLabel").dataset.value || "все";
       const type = document.getElementById("modalTypeLabel").dataset.value || "все";
       const gender = document.getElementById("modalGenderLabel").dataset.value || "Не важно";
@@ -879,18 +1085,28 @@
 
       const newEntry = {
         id: Math.max(...entries.map(e => e.id), 0) + 1,
-        title: entryTitle.value || `Запись от ${formatDate(new Date())}`,
-        description: entryDescription.value || "Описание отсутствует",
+        title: entryTitle.value.trim() || `Запись от ${formatDate(new Date())}`,
+        description: entryDescription.value.trim() || "Описание отсутствует",
         tags: { city, type, date, gender },
         creator: currentUser,
         likedBy: [],
         timestamp: new Date()
       };
 
-      entries.unshift(newEntry);
-      modal.classList.remove("active");
-      modalOverlay.classList.remove("active");
-      refreshEntries();
+      setTimeout(() => {
+        entries.unshift(newEntry);
+        
+        // Показать сообщение об успехе
+        document.getElementById('successMessage').style.display = 'block';
+        
+        setTimeout(() => {
+          modal.classList.remove("active");
+          modalOverlay.classList.remove("active");
+          modalSubmitButton.disabled = false;
+          modalSubmitButton.textContent = "Отправить";
+          refreshEntries();
+        }, 1000);
+      }, 500);
     });
 
     // Обработчики действий с записями
@@ -906,6 +1122,13 @@
           } else {
             entry.likedBy.push(currentUser.id);
           }
+          
+          // Анимация лайка
+          likeBtn.style.transform = 'scale(1.2)';
+          setTimeout(() => {
+            likeBtn.style.transform = 'scale(1)';
+          }, 150);
+          
           refreshEntries();
         }
         return;
@@ -936,10 +1159,16 @@
           }
           refreshEntries();
         } else if (option === "Удалить") {
-          entries = entries.filter(entry => entry.id !== entryId);
-          refreshEntries();
+          if (confirm("Вы уверены, что хотите удалить эту запись?")) {
+            entries = entries.filter(entry => entry.id !== entryId);
+            refreshEntries();
+          }
         } else if (option === "Скрыть") {
-          entryElement.style.display = "none";
+          entryElement.style.transform = 'translateX(-100%)';
+          entryElement.style.opacity = '0';
+          setTimeout(() => {
+            entryElement.style.display = "none";
+          }, 300);
         } else if (option === "Изменить") {
           const entry = entries.find(entry => entry.id === entryId);
           if (entry && entry.creator.id === currentUser.id) {
@@ -964,7 +1193,7 @@
             
             document.getElementById("modalUserInfo").innerHTML = `
               <img src="${currentUser.avatar}" alt="avatar" />
-              <span>${currentUser.name}</span>
+              <span>${sanitizeHtml(currentUser.name)}</span>
             `;
             
             modal.classList.add("active");
@@ -972,15 +1201,19 @@
           }
         }
         closeAllDropdowns();
+        return;
+      }
 
+      // Клик по пользователю
       const userInfo = e.target.closest(".user-info");
       if (userInfo) {
-        const userId = userInfo.dataset.userId;
+        const userId = parseInt(userInfo.dataset.userId);
         if (userId && window.Telegram?.WebApp) {
           window.Telegram.WebApp.openTelegramLink(`tg://user?id=${userId}`);
         }
+        return;
       }
-    }
+    });
 
     // Pull to refresh
     let startY = 0;
@@ -1023,7 +1256,7 @@
 
     // Infinite scroll
     const observer = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting) {
+      if (entries[0].isIntersecting && !isLoading) {
         currentPage++;
         loadEntries();
       }
@@ -1037,6 +1270,13 @@
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
+      
+      // Настройка цветов под тему Telegram
+      if (window.Telegram.WebApp.themeParams) {
+        const root = document.documentElement;
+        root.style.setProperty('--tg-theme-bg-color', window.Telegram.WebApp.themeParams.bg_color || '#FAFAFA');
+        root.style.setProperty('--tg-theme-text-color', window.Telegram.WebApp.themeParams.text_color || '#000000');
+      }
     }
   </script>
 </body>
