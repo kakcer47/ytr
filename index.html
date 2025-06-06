@@ -51,7 +51,10 @@
       font-size: 16px;
       font-family: 'Rubik', sans-serif;
     }
-    .filter-dropdown, .sort-dropdown, .card-menu-dropdown {
+    .search-bar input:focus {
+      outline: none;
+    }
+    .filter-dropdown, .sort-dropdown, .card-menu-dropdown, .header-menu-dropdown {
       display: none;
       position: absolute;
       top: 100%;
@@ -66,10 +69,15 @@
       transform: translateY(-10px);
       transition: opacity 0.2s ease, transform 0.2s ease;
     }
-    .filter-dropdown.show, .sort-dropdown.show, .card-menu-dropdown.show {
+    .filter-dropdown.show, .sort-dropdown.show, .card-menu-dropdown.show, .header-menu-dropdown.show {
       display: block;
       opacity: 1;
       transform: translateY(0);
+    }
+    .header-menu-dropdown {
+      right: 0;
+      left: auto;
+      min-width: 160px;
     }
     .card-menu-dropdown {
       bottom: 100%;
@@ -85,7 +93,7 @@
     .card-menu-dropdown.show {
       transform: translateY(0);
     }
-    .filter-dropdown a, .sort-dropdown a, .card-menu-dropdown a {
+    .filter-dropdown a, .sort-dropdown a, .card-menu-dropdown a, .header-menu-dropdown a {
       display: block;
       padding: 8px 12px;
       font-size: 14px;
@@ -93,9 +101,29 @@
       text-decoration: none;
       transition: background-color 0.2s ease;
     }
-    .filter-dropdown a:hover, .sort-dropdown a:hover, .card-menu-dropdown a:hover {
+    .filter-dropdown a:hover, .sort-dropdown a:hover, .card-menu-dropdown a:hover, .header-menu-dropdown a:hover {
       background-color: #F2F2F7;
       cursor: pointer;
+    }
+    .filter-dropdown .type-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .filter-dropdown .type-option .checkmark {
+      width: 16px;
+      height: 16px;
+      border: 1px solid #D1D1D6;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #007AFF;
+    }
+    .filter-dropdown .type-option.selected .checkmark {
+      background-color: #007AFF;
+      color: white;
     }
     .filter-label {
       font-size: 10px;
@@ -129,6 +157,9 @@
       transform: translateY(0);
       opacity: 1;
     }
+    .ios-card.hidden {
+      display: none;
+    }
     .ios-card:active {
       background-color: #F2F2F7;
       transform: scale(0.98);
@@ -153,16 +184,25 @@
       color: #007AFF;
     }
     .ios-description-container {
-      display: none;
-      opacity: 0;
-      transform: translateY(-10px);
-      transition: opacity 0.2s ease, transform 0.2s ease;
       overflow: hidden;
+      transition: all 0.3s ease;
     }
-    .ios-description-container.show {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
+    .ios-description-container.collapsed {
+      max-height: 4.2em; /* примерно 3 строки */
+      position: relative;
+    }
+    .ios-description-container.collapsed::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 1.4em;
+      width: 100%;
+      background: linear-gradient(transparent, #fcfcfc);
+      pointer-events: none;
+    }
+    .ios-description-container.expanded {
+      max-height: none;
     }
     .ios-description {
       font-size: 16px;
@@ -311,7 +351,6 @@
     }
     .modal-content input:focus, .modal-content textarea:focus {
       outline: none;
-      border-color: #007AFF;
     }
     .modal-content textarea {
       resize: none;
@@ -497,11 +536,26 @@
             </button>
             <div id="typeLabel" class="filter-label">все</div>
             <div id="typeDropdownMenu" class="filter-dropdown">
-              <a href="#" data-option="все">все</a>
-              <a href="#" data-option="Спорт">Спорт</a>
-              <a href="#" data-option="Духовность">Духовность</a>
-              <a href="#" data-option="Работа">Работа</a>
-              <a href="#" data-option="Путешествия">Путешествия</a>
+              <a href="#" data-option="все" class="type-option">
+                <span>все</span>
+                <div class="checkmark"></div>
+              </a>
+              <a href="#" data-option="Спорт" class="type-option">
+                <span>Спорт</span>
+                <div class="checkmark"></div>
+              </a>
+              <a href="#" data-option="Духовность" class="type-option">
+                <span>Духовность</span>
+                <div class="checkmark"></div>
+              </a>
+              <a href="#" data-option="Работа" class="type-option">
+                <span>Работа</span>
+                <div class="checkmark"></div>
+              </a>
+              <a href="#" data-option="Путешествия" class="type-option">
+                <span>Путешествия</span>
+                <div class="checkmark"></div>
+              </a>
             </div>
           </div>
           <span class="header-separator">|</span>
@@ -512,8 +566,7 @@
             </button>
             <div id="dateLabel" class="filter-label">все</div>
             <div id="dateDropdownMenu" class="filter-dropdown">
-              <button id="dateSelectButton" class="text-xs bg-blue-500 text-white px-2 py-1 rounded mt-1">Выбрать</button>
-              <input type="date" id="datePicker" class="text-xs border rounded px-1 py-0.5 hidden" />
+              <input type="date" id="datePicker" class="text-xs border rounded px-1 py-0.5" />
             </div>
           </div>
           <span class="header-separator">|</span>
@@ -536,11 +589,17 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m1.2-6.3a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z"/>
             </svg>
           </button>
-          <button class="focus:outline-none">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M6 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM12 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM18 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
-            </svg>
-          </button>
+          <div class="relative">
+            <button id="headerMenuButton" class="focus:outline-none">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M6 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM12 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM18 10c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2z"/>
+              </svg>
+            </button>
+            <div id="headerMenuDropdown" class="header-menu-dropdown">
+              <a href="#" data-option="reset-filters">Сбросить фильтры</a>
+              <a href="#" data-option="stars">Звезды</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -567,6 +626,7 @@
         <div id="sortDropdownMenu" class="sort-dropdown">
           <a href="#" data-option="Мои">Мои</a>
           <a href="#" data-option="Избранное">Избранное</a>
+          <a href="#" data-option="Скрытые">Скрытые</a>
           <a href="#" data-option="По рейтингу">По рейтингу</a>
           <a href="#" data-option="Новые">Новые</a>
           <a href="#" data-option="Старые">Старые</a>
@@ -609,11 +669,26 @@
         </button>
         <div id="modalTypeLabel" class="filter-label">все</div>
         <div id="modalTypeDropdownMenu" class="filter-dropdown">
-          <a href="#" data-option="все">все</a>
-          <a href="#" data-option="Спорт">Спорт</a>
-          <a href="#" data-option="Духовность">Духовность</a>
-          <a href="#" data-option="Работа">Работа</a>
-          <a href="#" data-option="Путешествия">Путешествия</a>
+          <a href="#" data-option="все" class="type-option">
+            <span>все</span>
+            <div class="checkmark"></div>
+          </a>
+          <a href="#" data-option="Спорт" class="type-option">
+            <span>Спорт</span>
+            <div class="checkmark"></div>
+          </a>
+          <a href="#" data-option="Духовность" class="type-option">
+            <span>Духовность</span>
+            <div class="checkmark"></div>
+          </a>
+          <a href="#" data-option="Работа" class="type-option">
+            <span>Работа</span>
+            <div class="checkmark"></div>
+          </a>
+          <a href="#" data-option="Путешествия" class="type-option">
+            <span>Путешествия</span>
+            <div class="checkmark"></div>
+          </a>
         </div>
       </div>
       <span class="header-separator">|</span>
@@ -692,12 +767,15 @@
     ];
 
     let favorites = new Set();
+    let hiddenEntries = new Set();
+    let selectedTypes = new Set(['все']);
+    let modalSelectedTypes = new Set(['все']);
     let entries = [
       {
         id: 1,
         title: "Запись от 06 июня 2025",
         description: "Сегодня я посвятил время саморазвитию и размышлениям. Читал книгу о медитации и практиковал осознанность. Это помогло мне найти внутренний покой и лучше понять себя.",
-        tags: { city: "Москва", type: "Духовность", date: "2025-06-06", gender: "Не важно" },
+        tags: { city: "Москва", type: ["Духовность"], date: "2025-06-06", gender: "Не важно" },
         creator: sampleUsers[0],
         likedBy: [currentUser.id],
         timestamp: new Date('2025-06-06T12:00:00')
@@ -706,7 +784,7 @@
         id: 2,
         title: "Спортивная тренировка",
         description: "Отличная тренировка в спортзале сегодня! Фокусировался на силовых упражнениях и завершил кардио. Чувствую прилив энергии и готовность к новым вызовам.",
-        tags: { city: "Ростов", type: "Спорт", date: "2025-06-05", gender: "Мужчина" },
+        tags: { city: "Ростов", type: ["Спорт"], date: "2025-06-05", gender: "Мужчина" },
         creator: sampleUsers[1],
         likedBy: [sampleUsers[2].id],
         timestamp: new Date('2025-06-05T18:30:00')
@@ -715,7 +793,7 @@
         id: 3,
         title: "Вечерние размышления",
         description: "Прекрасный закат сегодня напомнил о красоте момента. Время подумать о целях на будущее и планах на завтра. Благодарна за этот день.",
-        tags: { city: "Москва", type: "Духовность", date: "2025-06-04", gender: "Женщина" },
+        tags: { city: "Москва", type: ["Духовность"], date: "2025-06-04", gender: "Женщина" },
         creator: sampleUsers[2],
         likedBy: [sampleUsers[0].id, currentUser.id],
         timestamp: new Date('2025-06-04T20:15:00')
@@ -724,7 +802,7 @@
         id: 4,
         title: "Рабочий проект",
         description: "Завершил важный проект на работе. Командная работа показала отличные результаты, и я горжусь тем, что мы достигли.",
-        tags: { city: "Санкт-Петербург", type: "Работа", date: "2025-06-03", gender: "Мужчина" },
+        tags: { city: "Санкт-Петербург", type: ["Работа"], date: "2025-06-03", gender: "Мужчина" },
         creator: sampleUsers[3],
         likedBy: [sampleUsers[1].id],
         timestamp: new Date('2025-06-03T15:45:00')
@@ -736,12 +814,13 @@
     const entriesPerPage = 25;
     let filters = { 
       city: "все", 
-      type: "все", 
+      type: new Set(['все']), 
       date: "все", 
       gender: "Не важно", 
       search: "",
       creator: null,
-      favorite: false
+      favorite: false,
+      hidden: false
     };
     let currentSort = "Новые";
     let isLoading = false;
@@ -770,7 +849,7 @@
     }
 
     function closeAllDropdowns() {
-      document.querySelectorAll(".filter-dropdown, .sort-dropdown, .card-menu-dropdown").forEach(menu => {
+      document.querySelectorAll(".filter-dropdown, .sort-dropdown, .card-menu-dropdown, .header-menu-dropdown").forEach(menu => {
         menu.classList.remove('show');
         setTimeout(() => {
           if (!menu.classList.contains('show')) {
@@ -811,6 +890,58 @@
       return isValid;
     }
 
+    function updateTypeFilter(isModal = false) {
+      const selectedSet = isModal ? modalSelectedTypes : selectedTypes;
+      const label = isModal ? document.getElementById('modalTypeLabel') : document.getElementById('typeLabel');
+      
+      if (selectedSet.has('все') || selectedSet.size === 0) {
+        label.textContent = 'все';
+      } else if (selectedSet.size === 1) {
+        label.textContent = 'выбрано';
+      } else {
+        label.textContent = `выбрано (${selectedSet.size})`;
+      }
+    }
+
+    function updateTypeCheckmarks(menuId, selectedSet) {
+      const menu = document.getElementById(menuId);
+      menu.querySelectorAll('.type-option').forEach(option => {
+        const value = option.dataset.option;
+        const checkmark = option.querySelector('.checkmark');
+        
+        if (selectedSet.has(value)) {
+          option.classList.add('selected');
+          checkmark.textContent = '✓';
+        } else {
+          option.classList.remove('selected');
+          checkmark.textContent = '';
+        }
+      });
+    }
+
+    // Функция для обновления отдельной карточки без перерендера всей ленты
+    function updateEntryCard(entryId) {
+      const cardElement = document.querySelector(`[data-entry-id="${entryId}"]`);
+      if (!cardElement) return;
+
+      const entry = entries.find(e => e.id === entryId);
+      if (!entry) return;
+
+      // Обновляем только лайки
+      const likeBtn = cardElement.querySelector('.like-btn');
+      const isLiked = entry.likedBy.includes(currentUser.id);
+      
+      if (isLiked) {
+        likeBtn.classList.add('liked');
+        likeBtn.querySelector('svg').setAttribute('fill', 'currentColor');
+      } else {
+        likeBtn.classList.remove('liked');
+        likeBtn.querySelector('svg').setAttribute('fill', 'none');
+      }
+      
+      likeBtn.querySelector('span').textContent = entry.likedBy.length;
+    }
+
     // Рендеринг записей
     function renderEntry(entry) {
       const entryElement = document.createElement("div");
@@ -820,16 +951,24 @@
       const isLiked = entry.likedBy.includes(currentUser.id);
       const isFavorited = favorites.has(entry.id);
       const isOwner = entry.creator.id === currentUser.id;
+      const isHidden = hiddenEntries.has(entry.id);
+
+      if (isHidden) {
+        entryElement.classList.add('hidden');
+      }
+
+      // Обработка тегов типа (может быть массив)
+      const typeTags = Array.isArray(entry.tags.type) ? entry.tags.type : [entry.tags.type];
 
       entryElement.innerHTML = `
         <div class="ios-tags">
           ${entry.tags.city !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.city)}</span>` : ""}
-          ${entry.tags.type !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.type)}</span>` : ""}
+          ${typeTags.filter(type => type !== "все").map(type => `<span class="ios-tag">${sanitizeHtml(type)}</span>`).join("")}
           ${entry.tags.date !== "все" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.date)}</span>` : ""}
           ${entry.tags.gender !== "Не важно" ? `<span class="ios-tag">${sanitizeHtml(entry.tags.gender)}</span>` : ""}
         </div>
         <h2 class="ios-title">${sanitizeHtml(entry.title)}</h2>
-        <div class="ios-description-container">
+        <div class="ios-description-container collapsed">
           <p class="ios-description">${sanitizeHtml(entry.description)}</p>
         </div>
         <div class="ios-card-footer">
@@ -891,14 +1030,24 @@
           entry.description.toLowerCase().includes(searchLower) ||
           entry.creator.name.toLowerCase().includes(searchLower);
 
+        // Проверка типов
+        const entryTypes = Array.isArray(entry.tags.type) ? entry.tags.type : [entry.tags.type];
+        const matchesType = filters.type.has('все') || 
+          entryTypes.some(type => filters.type.has(type));
+
+        // Проверка скрытых записей
+        const isHidden = hiddenEntries.has(entry.id);
+        const matchesHidden = filters.hidden ? isHidden : !isHidden;
+
         return (
           (filters.city === "все" || entry.tags.city === filters.city) &&
-          (filters.type === "все" || entry.tags.type === filters.type) &&
+          matchesType &&
           (filters.date === "все" || entry.tags.date === filters.date) &&
           (filters.gender === "Не важно" || entry.tags.gender === filters.gender) &&
           matchesSearch &&
           (!filters.creator || entry.creator.id === filters.creator) &&
-          (!filters.favorite || favorites.has(entry.id))
+          (!filters.favorite || favorites.has(entry.id)) &&
+          matchesHidden
         );
       });
     }
@@ -918,6 +1067,10 @@
                       .sort((a, b) => b.timestamp - a.timestamp);
         case "Избранное":
           return sorted.filter(entry => favorites.has(entry.id))
+                      .sort((a, b) => b.timestamp - a.timestamp);
+        case "Скрытые":
+          filters.hidden = true;
+          return sorted.filter(entry => hiddenEntries.has(entry.id))
                       .sort((a, b) => b.timestamp - a.timestamp);
         default:
           return sorted;
@@ -1014,28 +1167,70 @@
 
     // Настройка фильтров
     setupFilter("cityDropdownButton", "cityDropdownMenu", "cityLabel", "city");
-    setupFilter("typeDropdownButton", "typeDropdownMenu", "typeLabel", "type");
     setupFilter("genderDropdownButton", "genderDropdownMenu", "genderLabel", "gender");
 
     setupModalFilter("modalCityDropdownButton", "modalCityDropdownMenu", "modalCityLabel");
-    setupModalFilter("modalTypeDropdownButton", "modalTypeDropdownMenu", "modalTypeLabel");
     setupModalFilter("modalGenderDropdownButton", "modalGenderDropdownMenu", "modalGenderLabel");
+
+    // Специальная настройка для типов
+    function setupTypeFilter(buttonId, menuId, labelId, isModal = false) {
+      const button = document.getElementById(buttonId);
+      const menu = document.getElementById(menuId);
+      const selectedSet = isModal ? modalSelectedTypes : selectedTypes;
+
+      button.addEventListener("click", function(e) {
+        e.stopPropagation();
+        toggleDropdown(menu);
+        updateTypeCheckmarks(menuId, selectedSet);
+      });
+
+      menu.querySelectorAll('.type-option').forEach(item => {
+        item.addEventListener("click", function(e) {
+          e.preventDefault();
+          const value = this.dataset.option;
+          
+          if (value === 'все') {
+            selectedSet.clear();
+            selectedSet.add('все');
+          } else {
+            if (selectedSet.has('все')) {
+              selectedSet.delete('все');
+            }
+            
+            if (selectedSet.has(value)) {
+              selectedSet.delete(value);
+            } else if (selectedSet.size < 3) {
+              selectedSet.add(value);
+            }
+            
+            if (selectedSet.size === 0) {
+              selectedSet.add('все');
+            }
+          }
+          
+          updateTypeCheckmarks(menuId, selectedSet);
+          updateTypeFilter(isModal);
+          
+          if (!isModal) {
+            filters.type = new Set(selectedSet);
+            refreshEntries();
+          }
+        });
+      });
+    }
+
+    setupTypeFilter("typeDropdownButton", "typeDropdownMenu", "typeLabel", false);
+    setupTypeFilter("modalTypeDropdownButton", "modalTypeDropdownMenu", "modalTypeLabel", true);
 
     // Обработчик для даты
     const dateButton = document.getElementById("dateDropdownButton");
     const dateMenu = document.getElementById("dateDropdownMenu");
     const dateLabel = document.getElementById("dateLabel");
     const datePicker = document.getElementById("datePicker");
-    const dateSelectButton = document.getElementById("dateSelectButton");
 
     dateButton.addEventListener("click", function(e) {
       e.stopPropagation();
       toggleDropdown(dateMenu);
-    });
-
-    dateSelectButton.addEventListener("click", function(e) {
-      e.stopPropagation();
-      datePicker.classList.remove("hidden");
       datePicker.focus();
     });
 
@@ -1043,7 +1238,6 @@
       const selectedDate = this.value;
       dateLabel.textContent = selectedDate ? "выбрано" : "все";
       filters.date = selectedDate || "все";
-      datePicker.classList.add("hidden");
       refreshEntries();
       closeAllDropdowns();
     });
@@ -1057,6 +1251,7 @@
     modalDateButton.addEventListener("click", function(e) {
       e.stopPropagation();
       toggleDropdown(modalDateMenu);
+      modalDatePicker.focus();
     });
 
     modalDatePicker.addEventListener("change", function() {
@@ -1098,15 +1293,64 @@
         currentSort = this.dataset.option;
     
         // Сброс специальных фильтров при обычной сортировке
-        if (currentSort !== "Мои" && currentSort !== "Избранное") {
+        if (currentSort !== "Мои" && currentSort !== "Избранное" && currentSort !== "Скрытые") {
           filters.creator = null;
           filters.favorite = false;
+          filters.hidden = false;
         }
     
         // Обновляем текст кнопки
         sortButton.querySelector("span").textContent = this.textContent;
     
         refreshEntries();
+        closeAllDropdowns();
+      });
+    });
+
+    // Меню в шапке
+    const headerMenuButton = document.getElementById("headerMenuButton");
+    const headerMenuDropdown = document.getElementById("headerMenuDropdown");
+
+    headerMenuButton.addEventListener("click", function(e) {
+      e.stopPropagation();
+      toggleDropdown(headerMenuDropdown);
+    });
+
+    headerMenuDropdown.querySelectorAll("a").forEach(item => {
+      item.addEventListener("click", function(e) {
+        e.preventDefault();
+        const action = this.dataset.option;
+        
+        if (action === "reset-filters") {
+          // Сброс всех фильтров
+          filters = { 
+            city: "все", 
+            type: new Set(['все']), 
+            date: "все", 
+            gender: "Не важно", 
+            search: "",
+            creator: null,
+            favorite: false,
+            hidden: false
+          };
+          selectedTypes.clear();
+          selectedTypes.add('все');
+          
+          // Обновление UI
+          document.getElementById("cityLabel").textContent = "все";
+          document.getElementById("typeLabel").textContent = "все";
+          document.getElementById("dateLabel").textContent = "все";
+          document.getElementById("genderLabel").textContent = "все";
+          searchInput.value = "";
+          datePicker.value = "";
+          
+          updateTypeCheckmarks("typeDropdownMenu", selectedTypes);
+          refreshEntries();
+        } else if (action === "stars") {
+          // Заглушка для звезд
+          alert("Функция 'Звезды' пока недоступна");
+        }
+        
         closeAllDropdowns();
       });
     });
@@ -1138,6 +1382,12 @@
       document.getElementById("modalGenderLabel").textContent = "все";
       modalDatePicker.value = "";
       
+      // Сброс типов
+      modalSelectedTypes.clear();
+      modalSelectedTypes.add('все');
+      updateTypeCheckmarks("modalTypeDropdownMenu", modalSelectedTypes);
+      updateTypeFilter(true);
+      
       // Сброс счетчиков
       document.getElementById("titleCounter").textContent = "0/64";
       document.getElementById("descriptionCounter").textContent = "0/350";
@@ -1164,7 +1414,7 @@
       modalSubmitButton.textContent = "Отправка...";
 
       const city = document.getElementById("modalCityLabel").dataset.value || "все";
-      const type = document.getElementById("modalTypeLabel").dataset.value || "все";
+      const selectedTypesArray = modalSelectedTypes.has('все') ? ['все'] : Array.from(modalSelectedTypes);
       const gender = document.getElementById("modalGenderLabel").dataset.value || "Не важно";
       const date = modalDatePicker.value || "все";
 
@@ -1172,7 +1422,7 @@
         id: Math.max(...entries.map(e => e.id), 0) + 1,
         title: entryTitle.value.trim() || `Запись от ${formatDate(new Date())}`,
         description: entryDescription.value.trim() || "Описание отсутствует",
-        tags: { city, type, date, gender },
+        tags: { city, type: selectedTypesArray, date, gender },
         creator: currentUser,
         likedBy: [],
         timestamp: new Date()
@@ -1202,18 +1452,13 @@
         e.stopPropagation();
         const card = title.closest(".ios-card");
         const descContainer = card.querySelector(".ios-description-container");
-        const isVisible = descContainer.classList.contains('show');
         
-        if (isVisible) {
-          descContainer.classList.remove('show');
-          setTimeout(() => {
-            descContainer.style.display = 'none';
-          }, 200);
+        if (descContainer.classList.contains('collapsed')) {
+          descContainer.classList.remove('collapsed');
+          descContainer.classList.add('expanded');
         } else {
-          descContainer.style.display = 'block';
-          setTimeout(() => {
-            descContainer.classList.add('show');
-          }, 10);
+          descContainer.classList.remove('expanded');
+          descContainer.classList.add('collapsed');
         }
         return;
       }
@@ -1236,7 +1481,8 @@
             likeBtn.style.transform = 'scale(1)';
           }, 150);
           
-          refreshEntries();
+          // Обновляем только эту карточку
+          updateEntryCard(entryId);
         }
         return;
       }
@@ -1264,17 +1510,27 @@
           } else {
             favorites.add(entryId);
           }
-          refreshEntries();
+          // Не обновляем всю ленту, только обновляем меню
+          const entry = entries.find(e => e.id === entryId);
+          const isFavorited = favorites.has(entryId);
+          menuItem.textContent = isFavorited ? "Удалить из избранного" : "В избранное";
         } else if (option === "Удалить") {
           if (confirm("Вы уверены, что хотите удалить эту запись?")) {
             entries = entries.filter(entry => entry.id !== entryId);
-            refreshEntries();
+            entryElement.style.transform = 'translateX(-100%)';
+            entryElement.style.opacity = '0';
+            setTimeout(() => {
+              entryElement.remove();
+            }, 300);
           }
         } else if (option === "Скрыть") {
+          hiddenEntries.add(entryId);
           entryElement.style.transform = 'translateX(-100%)';
           entryElement.style.opacity = '0';
           setTimeout(() => {
-            entryElement.style.display = "none";
+            entryElement.classList.add('hidden');
+            entryElement.style.transform = '';
+            entryElement.style.opacity = '';
           }, 300);
         } else if (option === "Изменить") {
           const entry = entries.find(entry => entry.id === entryId);
@@ -1290,8 +1546,12 @@
             document.getElementById("modalCityLabel").textContent = entry.tags.city === "все" ? "все" : "выбрано";
             document.getElementById("modalCityLabel").dataset.value = entry.tags.city;
             
-            document.getElementById("modalTypeLabel").textContent = entry.tags.type === "все" ? "все" : "выбрано";
-            document.getElementById("modalTypeLabel").dataset.value = entry.tags.type;
+            // Настройка типов
+            modalSelectedTypes.clear();
+            const entryTypes = Array.isArray(entry.tags.type) ? entry.tags.type : [entry.tags.type];
+            entryTypes.forEach(type => modalSelectedTypes.add(type));
+            updateTypeCheckmarks("modalTypeDropdownMenu", modalSelectedTypes);
+            updateTypeFilter(true);
             
             document.getElementById("modalGenderLabel").textContent = entry.tags.gender === "Не важно" ? "все" : "выбрано";
             document.getElementById("modalGenderLabel").dataset.value = entry.tags.gender;
@@ -1360,7 +1620,7 @@
       if (!event.target.closest("#searchBar, #searchButton")) {
         searchBar.classList.remove("active");
       }
-      if (!event.target.closest(".filter-btn, .sort-btn, .card-menu-btn, .filter-dropdown, .sort-dropdown, .card-menu-dropdown")) {
+      if (!event.target.closest(".filter-btn, .sort-btn, .card-menu-btn, .filter-dropdown, .sort-dropdown, .card-menu-dropdown, .header-menu-dropdown, #headerMenuButton")) {
         closeAllDropdowns();
       }
     });
@@ -1375,6 +1635,10 @@
 
     // Инициализация
     entries.sort((a, b) => b.timestamp - a.timestamp);
+    updateTypeCheckmarks("typeDropdownMenu", selectedTypes);
+    updateTypeCheckmarks("modalTypeDropdownMenu", modalSelectedTypes);
+    updateTypeFilter(false);
+    updateTypeFilter(true);
     refreshEntries();
 
     // Инициализация Telegram WebApp
