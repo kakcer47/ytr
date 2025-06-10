@@ -1,0 +1,1 @@
+const e=[{id:"all",name:"Все типы"},{id:"event",name:"Событие"},{id:"sale",name:"Распродажа"},{id:"news",name:"Новости"},{id:"work",name:"Работа"},{id:"housing",name:"Жилье"},{id:"transport",name:"Транспорт"},{id:"services",name:"Услуги"},{id:"education",name:"Образование"},{id:"entertainment",name:"Развлечения"},{id:"other",name:"Прочее"}];export{e as types};
